@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BC MacroAPI
 // @namespace    http://discord.gg/G3PTYPy
-// @version      1.0.2
+// @version      0.0.3.1
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @match        https://boxcritters.com/play/*
