@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         BC MacroAPI
 // @namespace    http://discord.gg/G3PTYPy
-// @version      1.0.1
+// @version      1.0.2
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @match        https://boxcritters.com/play/*
 // @match        http://boxcritters.com/play/*
 // @icon         https://raw.githubusercontent.com/boxcritters/CrittersPlus/master/icon.png
+// @run-at        document-start
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        unsafeWindow
