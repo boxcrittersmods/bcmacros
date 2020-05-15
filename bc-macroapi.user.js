@@ -95,22 +95,6 @@ BCMacro.prototype.dataify = function () {
 	return macro;
 }
 
-$(document).keydown(function (e) {
-	if (binding) {
-		binding.bindKey(e);
-		binding = undefined;
-		save();
-		RefreshSettings();
-		return;
-	}
-	macros.forEach((a) => {
-		if (a.key == e.which) {
-			console.log("[BCMacros] Triggering", a.name, "by key...");
-			a.cb();
-		}
-	});
-});
-
 
 
 // Runs on page load
@@ -118,6 +102,23 @@ $(document).keydown(function (e) {
 window.addEventListener(
 	"load",
 	async function () {
+		
+
+	$(document).keydown(function (e) {
+		if (binding) {
+			binding.bindKey(e);
+			binding = undefined;
+			save();
+			RefreshSettings();
+			return;
+		}
+		macros.forEach((a) => {
+			if (a.key == e.which) {
+				console.log("[BCMacros] Triggering", a.name, "by key...");
+				a.cb();
+			}
+		});
+	});			
 		if(BCMacro.macros && BCMacro.INITIAL_SETUP) BCMacro.INITIAL_SETUP = false;
 		if (BCMacro.macros) {
 			BCMacro.macros = BCMacro.macros.map(m=>{
