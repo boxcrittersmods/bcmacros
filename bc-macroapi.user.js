@@ -1,19 +1,22 @@
 // ==UserScript==
 // @name         BC MacroAPI
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.0.3.1
+// @version      0.1.0.25
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @match        https://boxcritters.com/play/*
 // @match        http://boxcritters.com/play/*
 // @icon         https://raw.githubusercontent.com/boxcritters/CrittersPlus/master/icon.png
-// @run-at        document-start
+// @run-at        document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_deleteValue
 // @grant        unsafeWindow
 // ==/UserScript==
 
 window = unsafeWindow || window;
+var chatBar = document.getElementsByClassName("input-group")[0];
+
 
 function BCMacro(name, cb) {
 	if (typeof cb != "function") return;
@@ -21,19 +24,9 @@ function BCMacro(name, cb) {
 	this.cb = cb;
 	this.button = undefined;
 	this.key = undefined;
-	macros.push(this);
+	BCMacro.macros.push(this);
 }
 window.BCMacro = BCMacro;
-
-BCMacro.data = GM_getValue("BCMacro_data", undefined);
-console.log("[BCMacros] Data Loaded.");
-if (!BCMacro) {
-	console.log("[BCMacros] Initiating First time setup...");
-	BCMacro.data = {
-		macros: undefined,
-	};
-}
-var macros = BCMacro.macros;
 
 function camelize(str) {
 	return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
@@ -43,14 +36,20 @@ function camelize(str) {
 }
 
 function save() {
-	GM_setValue("BCMacro_data", {
-		macros:BCMacro.data.macros.map(m=>m.dataify())
-	});
-	console.log("[BCMacros] Data Saved.");
+	if(!BCMacro.macros) {
+		if(BCMacro.INITIAL_SETUP) {
+			GM_deleteValue("BCMacros_macros");
+			GM_deleteValue("BCMacros_initial");
+		} else {
+			GM_setValue("BCMacros_macros", []);
+		}
+		return;
+	}
+	GM_setValue("BCMacros_macros", BCMacro.macros.map(m=>m.dataify()));
+	console.log("[BCMacros] Macros Saved.");
 }
 BCMacro.save = save;
 
-var binding = undefined;
 
 function createButton(name, cb, color = "info", place = "afterend", text) {
 	var button = {
@@ -63,13 +62,13 @@ function createButton(name, cb, color = "info", place = "afterend", text) {
 	var btnHTML = `<span class="input-group-btn"><button id="bcmacros${camelize(
 		name
 	)}" class="btn btn-${color}">${text || name}</button></span>`;
-	var chatBar = document.getElementsByClassName("input-group")[0];
 	chatBar.insertAdjacentHTML(place, btnHTML);
 	$(`#bcmacros${camelize(name)}`).click(cb);
 	button.html = $(`#bcmacros${camelize(name)}`);
 	return button;
 }
 BCMacro.createButton = createButton;
+
 BCMacro.prototype.toggleButton = function (color, place, text) {
 	if (this.button) {
 		this.button.html.toggle();
@@ -96,6 +95,29 @@ BCMacro.prototype.dataify = function () {
 }
 
 
+BCMacro.INITIAL_SETUP = GM_getValue("BCMacros_initial", true);
+BCMacro.macros = GM_getValue("BCMacros_macros", undefined);
+console.log("[BCMacros] Data Loaded.");
+if(BCMacro.macros && BCMacro.INITIAL_SETUP) BCMacro.INITIAL_SETUP = false;
+if (BCMacro.macros) {
+	BCMacro.macros = BCMacro.macros.map(m=>{
+		var macro = new BCMacro(m.name,eval("("+m.cb+")"));
+		macro.key = m.key;
+		if(m.button) macro.toggleButton(m.button.color,m.button.place,m.button.text);
+		return macro;
+	});
+} else {
+	console.log("[BCMacros] Initiating First time setup...");
+	BCMacro.INITIAL_SETUP = true;
+	BCMacro.macros = [];
+}
+GM_setValue("BCMacros_initial",BCMacro.INITIAL_SETUP);
+
+var macros = BCMacro.macros;
+
+
+
+
 
 // Runs on page load
 
@@ -105,32 +127,13 @@ window.addEventListener(
 		
 
 	$(document).keydown(function (e) {
-		if (binding) {
-			binding.bindKey(e);
-			binding = undefined;
-			save();
-			RefreshSettings();
-			return;
-		}
 		macros.forEach((a) => {
 			if (a.key == e.which) {
 				console.log("[BCMacros] Triggering", a.name, "by key...");
 				a.cb();
 			}
 		});
-	});			
-		if(BCMacro.macros && BCMacro.INITIAL_SETUP) BCMacro.INITIAL_SETUP = false;
-		if (BCMacro.macros) {
-			BCMacro.macros = BCMacro.macros.map(m=>{
-				var macro = new BCMacro(m.name,eval("("+m.cb+")"));
-				macro.key = m.key;
-				if(m.button) macro.toggleButton(m.button.color,m.button.place,m.button.text);
-				return macro;
-			})
-			macros = BCMacro.macros;
-		} else {
-			BCMacro.INITIAL_SETUP = true;
-		}
+	});
 		
 	},
 	false
