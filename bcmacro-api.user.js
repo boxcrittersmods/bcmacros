@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.1.0.25
+// @version      0.1.0.26
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @match        https://boxcritters.com/play/*
@@ -48,6 +48,12 @@ function save() {
 	console.log("[BCMacros] Macros Saved.");
 }
 BCMacro.save = save;
+function reset() {
+	BCMacro.INITIAL_SETUP = true;
+	BCMacro.macros = undefined;
+	RefreshSettings();
+}
+BCMacro.reset = reset;
 
 
 function createButton(name, cb, color = "info", place = "afterend", text) {
