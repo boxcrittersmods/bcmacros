@@ -4,9 +4,9 @@
 // @version      0.1.0.26
 // @description  Adds Macro API
 // @author       TumbleGamer
-// @match        https://boxcritters.com/play/*
-// @match        http://boxcritters.com/play/*
-// @run-at        document-end
+// @match        https://play.boxcritters.com/*
+// @match        http://play.boxcritters.com/*
+// @run-at       document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
