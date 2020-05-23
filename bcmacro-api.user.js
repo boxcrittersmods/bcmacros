@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.2.0.27
+// @version      0.2.1.28
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @match        https://play.boxcritters.com/*
@@ -272,6 +272,12 @@ window.addEventListener(
 		
 
 	$(document).keydown(function (e) {
+		if (binding) {
+			binding.bindKey(e);
+			binding = undefined;
+			RefreshSettings();
+			return;
+		}
 		macros.forEach((a) => {
 			if (a.key == e.which) {
 				console.log("[BCMacros] Triggering", a.name, "by key...");
