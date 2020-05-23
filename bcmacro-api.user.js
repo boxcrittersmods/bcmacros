@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.1.0.26
+// @version      0.2.0.27
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @match        https://play.boxcritters.com/*
@@ -15,6 +15,35 @@
 
 window = unsafeWindow || window;
 var chatBar = document.getElementsByClassName("input-group")[0];
+
+
+//Add FontAwsesome
+{
+	let head = document.head;
+	let link = document.createElement("link");
+
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href =
+		"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css";
+
+	head.appendChild(link);
+}
+//Add Dialogue
+{
+	let dialogueHTML = `<div id="BCM_modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header"><button type="button" class="close" data-dismiss="BCM_model" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button></div>
+                <div class="modal-body"></div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+	</div>`;
+	document.body.insertAdjacentHTML("afterbegin", dialogueHTML);
+}
 
 
 function BCMacro(name, cb) {
@@ -73,6 +102,108 @@ function createButton(name, cb, color = "info", place = "afterend", text) {
 	return button;
 }
 BCMacro.createButton = createButton;
+function createDialogue(header, body, footer) {
+	$("#BCM_modal").modal();
+	$("#BCM_modal").modal("show");
+	if (header) $("#BCM_modal .modal-header").html(header);
+	if (body) $("#BCM_modal .modal-body").html(body);
+	if (footer) $("#BCM_modal .modal-footer").html(footer);
+	return $("#BCM_model");
+}
+BCMacro.createDialogue = createDialogue;
+
+var binding = undefined;
+function createSetting(id, macro) {
+	var settingHTML = $(`<div class="list-group-item"><div class="input-group" id="bcmSetting${camelize(
+		id
+	)}">
+	<input type="text" class="form-control" value='${macro.name}' disabled>
+	<div class="input-group-append">
+	  <button class="btn ${
+		macro.button && macro.button.html && macro.button.html.is(":visible")
+			? "btn-success"
+			: "btn-outline-secondary"
+		}" type="button" id="bcmSetting${id}-button">Toggle Button</button>
+	  <button class="btn ${
+		macro.key ? "btn-success" : "btn-outline-secondary"
+		}" type="button" id="bcmSetting${id}-key">${
+		binding == macro ? "binding..." : macro.key || "Bind Key"
+		}</button>
+	</div>
+  </div></div>`);
+	$("#bcm_settingList").append(settingHTML);
+	var btnButton = $(`#bcmSetting${id}-button`);
+	var btnKey = $(`#bcmSetting${id}-key`);
+	btnButton.click(() => {
+		btnButton.toggleClass("btn-success");
+		btnButton.toggleClass("btn-outline-secondary");
+		macro.toggleButton();
+	});
+	btnKey.click(() => {
+		if (binding == macro) {
+			macro.key = undefined;
+			binding = undefined;
+			btnKey.removeClass("btn-danger");
+			btnKey.addClass("btn-outline-secondary");
+			btnKey.text("Bind key");
+			return;
+		}
+		binding = macro;
+		console.log("[BCM] Binding " + macro.name + "...");
+		btnKey.text("Binding...");
+		btnKey.removeClass("btn-outline-secondary");
+		btnKey.addClass("btn-danger");
+	});
+}
+
+function RefreshSettings() {
+	$("#bcm_settingList").empty();
+	(BCMacro.macros||[]).forEach((a) => {
+		createSetting(camelize(a.name), a);
+	});
+}
+
+function DisplaySettings() {
+	//Open Window with dropdown and stuff
+	var settingHTML = `
+	<h2>Macros</h2>
+	<div id="bcm_settingList" class="list-group">
+</div>
+<h2>Create Macro</h2>
+<div class="input-group" id="bcmSettingCreate">
+	<input type="text" id="bcmSettingName" class="form-control" placeholder="Name">
+	<div class="input-group-append">
+		<input type="text" id="bcmSettingContent" class="form-control" placeholder="Action/Text">
+	  <button class="btn btn-outline-secondary" type="button" id="bcmSettingJS">JS</button>
+	  <button class="btn btn-outline-secondary" type="button" id="bcmSettingChat">Chat</button>
+	</div>
+  </div>
+`;
+	createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
+	var newName = $('#bcmSettingName');
+	var newContent = $('#bcmSettingContent');
+	$('#bcmSettingJS').click(() => {
+		BCMacro.macros = BCMacro.macros||[];
+		var cb = new Function(newContent.val());
+		new BCMacro(newName.val(),cb);
+		RefreshSettings();
+	})
+	$('#bcmSettingChat').click(() => {
+		BCMacro.macros = BCMacro.macros||[];
+		var cb = new Function("world.sendMessage("+JSON.stringify(newContent.val())+")");
+		new BCMacro(newName.val(),cb);
+		RefreshSettings();
+	})
+	$('#bcmSettingSave').click(() => {
+		BCMacro.save();
+	})
+	$('#bcmSettingReset').click(() => {
+		BCMacro.reset();
+	})
+	RefreshSettings();
+}
+
+BCMacro.DisplaySettings = DisplaySettings;
 
 BCMacro.prototype.toggleButton = function (color, place, text) {
 	if (this.button) {
@@ -115,6 +246,15 @@ if (BCMacro.macros) {
 	console.log("[BCMacros] Initiating First time setup...");
 	BCMacro.INITIAL_SETUP = true;
 	BCMacro.macros = [];
+	var settingsMacro = new BCMacro("settings", ()=>{
+		CrittersPlus.DisplaySettings()
+	});
+	settingsMacro.toggleButton(
+		"primary",
+		"beforeend",
+		'<i class="fas fa-cog"></i>'
+	);
+	BCMacro.save();
 }
 GM_setValue("BCMacros_initial",BCMacro.INITIAL_SETUP);
 
