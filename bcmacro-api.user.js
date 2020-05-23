@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.2.1.28
+// @version      0.2.2.29
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @match        https://play.boxcritters.com/*
@@ -247,7 +247,7 @@ if (BCMacro.macros) {
 	BCMacro.INITIAL_SETUP = true;
 	BCMacro.macros = [];
 	var settingsMacro = new BCMacro("settings", ()=>{
-		CrittersPlus.DisplaySettings()
+		BCMacro.DisplaySettings()
 	});
 	settingsMacro.toggleButton(
 		"primary",
