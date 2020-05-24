@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.2.2.29
+// @version      0.2.3.30
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @match        https://play.boxcritters.com/*
@@ -55,6 +55,7 @@ function BCMacro(name, cb) {
 	BCMacro.macros.push(this);
 }
 window.BCMacro = BCMacro;
+BCMacro.sendMessage = (t)=>{world.message(t)};
 
 function camelize(str) {
 	return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
@@ -190,7 +191,7 @@ function DisplaySettings() {
 	})
 	$('#bcmSettingChat').click(() => {
 		BCMacro.macros = BCMacro.macros||[];
-		var cb = new Function("world.sendMessage("+JSON.stringify(newContent.val())+")");
+		var cb = new Function("BCMacro.sendMessage("+JSON.stringify(newContent.val())+")");
 		new BCMacro(newName.val(),cb);
 		RefreshSettings();
 	})
