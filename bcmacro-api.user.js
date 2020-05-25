@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.2.3.30
+// @version      0.2.4.31
 // @description  Adds Macro API
-// @author       TumbleGamer
+// @author       TumbleGamer#
+// @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @match        https://play.boxcritters.com/*
 // @match        http://play.boxcritters.com/*
 // @run-at       document-end
