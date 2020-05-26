@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.2.35
+// @version      0.3.3.36
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -244,7 +244,7 @@ if (BCMacro.macros) {
 }
 
 function setupModMacro(macro) {
-	BCMacro.forEach(m=>{
+	BCMacro.mods.forEach(m=>{
 		if(m.name==macro.name) {
 			macro.key = m.key;
 			if(m.button) macro.toggleButton(m.button.color,m.button.place,m.button.text);
