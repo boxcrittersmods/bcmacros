@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.1.34
+// @version      0.3.2.35
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -67,7 +67,7 @@ function camelize(str) {
 }
 
 function save() {
-	GM_setValue("BCMacros_macros", m=>m.dataify());
+	GM_setValue("BCMacros_mods", BCMacro.mods.map(m=>m.dataify()));
 	if(!BCMacro.macros) {
 		GM_setValue("BCMacros_macros", []);
 		return;
