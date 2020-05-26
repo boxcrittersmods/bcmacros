@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.4.37
+// @version      0.3.5.38
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
-// @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require      https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js
-// @require      https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js
+// @require      https://code.jquery.com/jquery-3.5.1.slim.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js
+// @require      https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js
 // @match        https://play.boxcritters.com/*
 // @match        http://play.boxcritters.com/*
 // @run-at       document-end
@@ -85,11 +85,12 @@ BCMacro.reset = reset;
 
 function createButton(name, cb, color = "info", place = "afterend", text) {
 	var button = {
-		cb,
-		color,
-		place,
-		text,
+		cb:cb,
+		color:color,
+		place:place,
+		text:text,
 		html: undefined,
+		display:true
 	};
 	var btnHTML = `<span class="input-group-btn"><button id="bcmacros${camelize(
 		name
@@ -167,6 +168,7 @@ function RefreshSettings() {
 function DisplaySettings() {
 	//Open Window with dropdown and stuff
 	var settingHTML = `
+	<h2>Macros</h2>
 	<div class="input-group" id="bcmSettingCreate">
 		<input type="text" id="bcmSettingName" class="form-control" placeholder="Name">
 		<div class="input-group-append">
@@ -175,7 +177,6 @@ function DisplaySettings() {
 		  <button class="btn btn-outline-secondary" type="button" id="bcmSettingChat">Chat</button>
 		</div>
 	  </div>
-	<h2>Macros</h2>
 	<div id="bcm_settingList" class="list-group">
 </div>
 `;
@@ -206,7 +207,7 @@ function DisplaySettings() {
 BCMacro.DisplaySettings = DisplaySettings;
 
 BCMacro.prototype.toggleButton = function (color, place, text) {
-	if (this.button) {
+	if (this.button && this.button.html) {
 		this.button.html.toggle();
 	} else {
 		this.button = createButton(
@@ -224,9 +225,9 @@ BCMacro.prototype.bindKey = function (e) {
 BCMacro.prototype.dataify = function () {
 	var macro = Object.assign({},this);
 	macro.cb = macro.cb.toString();
-	if(macro.button && macro.button.html && !macro.button.html.is(":visible")) {
-		macro.button = undefined;
-	}
+	if(this.button) macro.button = Object.assign({},this.button);
+	if(macro.button) macro.button.display = macro.button.html && !macro.button.html.is(":visible");
+	if(macro.button && macro.button.html) macro.button.html = undefined;
 	return macro;
 }
 
@@ -238,20 +239,29 @@ if (BCMacro.macros) {
 	BCMacro.macros = BCMacro.macros.map(m=>{
 		var macro = new BCMacro(m.name,eval("("+m.cb+")"));
 		macro.key = m.key;
-		if(m.button) macro.toggleButton(m.button.color,m.button.place,m.button.text);
+		if(m.button ) {
+			macro.toggleButton(m.button.color,m.button.place,m.button.text);
+			if(!m.button.display) macro.toggleButton();
+		}
 		return macro;
 	});
 }
 
-function setupModMacro(macro) {
-	BCMacro.mods.forEach(m=>{
-		if(m.name==macro.name) {
-			macro.key = m.key;
-			if(m.button) macro.toggleButton(m.button.color,m.button.place,m.button.text);
+BCMacro.prototype.setupMod = function() {
+	modSettings.forEach(m=>{
+		if(m.name==this.name) {
+			this.key = m.key;
+			if(this.button) {
+				var thisButtonDisplay = this.button.html && !this.button.html.is(":visible");
+				if(thisButtonDisplay!=m.button.display) this.toggleButton();
+			} else if(m.button) {
+				this.toggleButton(m.button.color,m.button.place,m.button.text);
+				if(!m.button.display) this.toggleButton();
+			}
 		}
 	})
+
 }
-BCMacro.setupModMacro = setupModMacro;
 
 {
 	var settingsMacro = new BCMacro("settings", ()=>{
@@ -262,7 +272,7 @@ BCMacro.setupModMacro = setupModMacro;
 		"beforeend",
 		'<i class="fas fa-cog"></i>'
 	);
-	setupModMacro(settingsMacro);
+	settingsMacro.setupMod();
 }
 var macros = BCMacro.macros;
 var mods = BCMacro.mods;
