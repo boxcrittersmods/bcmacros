@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.2.5.32
+// @version      0.3.0.33
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
-// @require      https://code.jquery.com/jquery-3.5.1.min.js
-// @require      https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
+// @require      https://code.jquery.com/jquery-3.2.1.slim.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js
+// @require      https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js
 // @match        https://play.boxcritters.com/*
 // @match        http://play.boxcritters.com/*
 // @run-at       document-end
@@ -43,13 +44,17 @@ var chatBar = document.getElementsByClassName("input-group")[0];
 }
 
 
-function BCMacro(name, cb) {
+function BCMacro(name, cb, permenant) {
 	if (typeof cb != "function") return;
 	this.name = name;
 	this.cb = cb;
 	this.button = undefined;
 	this.key = undefined;
-	BCMacro.macros.push(this);
+	if(permenant){
+		BCMacro.mods.push(this);
+	} else {
+		BCMacro.macros.push(this);
+	}
 }
 window.BCMacro = BCMacro;
 BCMacro.sendMessage = (t)=>{world.message(t)};
@@ -63,12 +68,7 @@ function camelize(str) {
 
 function save() {
 	if(!BCMacro.macros) {
-		if(BCMacro.INITIAL_SETUP) {
-			GM_deleteValue("BCMacros_macros");
-			GM_deleteValue("BCMacros_initial");
-		} else {
-			GM_setValue("BCMacros_macros", []);
-		}
+		GM_setValue("BCMacros_macros", []);
 		return;
 	}
 	GM_setValue("BCMacros_macros", BCMacro.macros.map(m=>m.dataify()));
@@ -156,6 +156,9 @@ function createSetting(id, macro) {
 
 function RefreshSettings() {
 	$("#bcm_settingList").empty();
+	(BCMacro.mods||[]).forEach((a) => {
+		createSetting(camelize(a.name), a,true);
+	});
 	(BCMacro.macros||[]).forEach((a) => {
 		createSetting(camelize(a.name), a);
 	});
@@ -164,18 +167,17 @@ function RefreshSettings() {
 function DisplaySettings() {
 	//Open Window with dropdown and stuff
 	var settingHTML = `
+	<div class="input-group" id="bcmSettingCreate">
+		<input type="text" id="bcmSettingName" class="form-control" placeholder="Name">
+		<div class="input-group-append">
+			<input type="text" id="bcmSettingContent" class="form-control" placeholder="Action/Text">
+		  <button class="btn btn-outline-secondary" type="button" id="bcmSettingJS">JS</button>
+		  <button class="btn btn-outline-secondary" type="button" id="bcmSettingChat">Chat</button>
+		</div>
+	  </div>
 	<h2>Macros</h2>
 	<div id="bcm_settingList" class="list-group">
 </div>
-<h2>Create Macro</h2>
-<div class="input-group" id="bcmSettingCreate">
-	<input type="text" id="bcmSettingName" class="form-control" placeholder="Name">
-	<div class="input-group-append">
-		<input type="text" id="bcmSettingContent" class="form-control" placeholder="Action/Text">
-	  <button class="btn btn-outline-secondary" type="button" id="bcmSettingJS">JS</button>
-	  <button class="btn btn-outline-secondary" type="button" id="bcmSettingChat">Chat</button>
-	</div>
-  </div>
 `;
 	createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
 	var newName = $('#bcmSettingName');
@@ -229,10 +231,9 @@ BCMacro.prototype.dataify = function () {
 }
 
 
-BCMacro.INITIAL_SETUP = GM_getValue("BCMacros_initial", true);
-BCMacro.macros = GM_getValue("BCMacros_macros", undefined);
+BCMacro.macros = GM_getValue("BCMacros_macros", []);
+BCMacro.mods = [];
 console.log("[BCMacros] Data Loaded.");
-if(BCMacro.macros && BCMacro.INITIAL_SETUP) BCMacro.INITIAL_SETUP = false;
 if (BCMacro.macros) {
 	BCMacro.macros = BCMacro.macros.map(m=>{
 		var macro = new BCMacro(m.name,eval("("+m.cb+")"));
@@ -240,13 +241,12 @@ if (BCMacro.macros) {
 		if(m.button) macro.toggleButton(m.button.color,m.button.place,m.button.text);
 		return macro;
 	});
-} else {
-	console.log("[BCMacros] Initiating First time setup...");
-	BCMacro.INITIAL_SETUP = true;
-	BCMacro.macros = [];
+}
+
+{
 	var settingsMacro = new BCMacro("settings", ()=>{
 		BCMacro.DisplaySettings()
-	});
+	},true);
 	settingsMacro.toggleButton(
 		"primary",
 		"beforeend",
@@ -254,12 +254,8 @@ if (BCMacro.macros) {
 	);
 	BCMacro.save();
 }
-GM_setValue("BCMacros_initial",BCMacro.INITIAL_SETUP);
-
 var macros = BCMacro.macros;
-
-
-
+var mods = BCMacro.mods;
 
 
 // Runs on page load
@@ -276,6 +272,12 @@ window.addEventListener(
 			RefreshSettings();
 			return;
 		}
+		mods.forEach((a) => {
+			if (a.key == e.which) {
+				console.log("[BCMacros] Triggering", a.name, "by key...");
+				a.cb();
+			}
+		});
 		macros.forEach((a) => {
 			if (a.key == e.which) {
 				console.log("[BCMacros] Triggering", a.name, "by key...");
