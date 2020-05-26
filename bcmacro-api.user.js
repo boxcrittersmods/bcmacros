@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.0.33
+// @version      0.3.1.34
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -44,13 +44,13 @@ var chatBar = document.getElementsByClassName("input-group")[0];
 }
 
 
-function BCMacro(name, cb, permenant) {
+function BCMacro(name, cb, mod) {
 	if (typeof cb != "function") return;
 	this.name = name;
 	this.cb = cb;
 	this.button = undefined;
 	this.key = undefined;
-	if(permenant){
+	if(mod){
 		BCMacro.mods.push(this);
 	} else {
 		BCMacro.macros.push(this);
@@ -67,6 +67,7 @@ function camelize(str) {
 }
 
 function save() {
+	GM_setValue("BCMacros_macros", m=>m.dataify());
 	if(!BCMacro.macros) {
 		GM_setValue("BCMacros_macros", []);
 		return;
@@ -76,7 +77,6 @@ function save() {
 }
 BCMacro.save = save;
 function reset() {
-	BCMacro.INITIAL_SETUP = true;
 	BCMacro.macros = undefined;
 	RefreshSettings();
 }
@@ -111,7 +111,7 @@ function createDialogue(header, body, footer) {
 BCMacro.createDialogue = createDialogue;
 
 var binding = undefined;
-function createSetting(id, macro) {
+function createSetting(id, macro,mod) {
 	var settingHTML = $(`<div class="list-group-item"><div class="input-group" id="bcmSetting${camelize(
 		id
 	)}">
@@ -230,7 +230,7 @@ BCMacro.prototype.dataify = function () {
 	return macro;
 }
 
-
+var modSettings = GM_getValue("BCMacros_mods",[]);
 BCMacro.macros = GM_getValue("BCMacros_macros", []);
 BCMacro.mods = [];
 console.log("[BCMacros] Data Loaded.");
@@ -243,6 +243,16 @@ if (BCMacro.macros) {
 	});
 }
 
+function setupModMacro(macro) {
+	BCMacro.forEach(m=>{
+		if(m.name==macro.name) {
+			macro.key = m.key;
+			if(m.button) macro.toggleButton(m.button.color,m.button.place,m.button.text);
+		}
+	})
+}
+BCMacro.setupModMacro = setupModMacro;
+
 {
 	var settingsMacro = new BCMacro("settings", ()=>{
 		BCMacro.DisplaySettings()
@@ -252,6 +262,7 @@ if (BCMacro.macros) {
 		"beforeend",
 		'<i class="fas fa-cog"></i>'
 	);
+	setupModMacro(settingsMacro);
 	BCMacro.save();
 }
 var macros = BCMacro.macros;
