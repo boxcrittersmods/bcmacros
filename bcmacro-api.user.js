@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.3.36
+// @version      0.3.4.37
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -263,7 +263,6 @@ BCMacro.setupModMacro = setupModMacro;
 		'<i class="fas fa-cog"></i>'
 	);
 	setupModMacro(settingsMacro);
-	BCMacro.save();
 }
 var macros = BCMacro.macros;
 var mods = BCMacro.mods;
