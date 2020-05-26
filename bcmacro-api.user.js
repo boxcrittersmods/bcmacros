@@ -1,35 +1,31 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.2.4.31
+// @version      0.2.5.32
 // @description  Adds Macro API
-// @author       TumbleGamer#
+// @author       TumbleGamer
+// @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
+// @require      https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @match        https://play.boxcritters.com/*
 // @match        http://play.boxcritters.com/*
 // @run-at       document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
+// @grant        GM_addStyle
+// @grant        GM_getResourceText
 // @grant        unsafeWindow
 // ==/UserScript==
 
 window = unsafeWindow || window;
 var chatBar = document.getElementsByClassName("input-group")[0];
 
-
-//Add FontAwsesome
 {
-	let head = document.head;
-	let link = document.createElement("link");
-
-	link.type = "text/css";
-	link.rel = "stylesheet";
-	link.href =
-		"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css";
-
-	head.appendChild(link);
+	var fontAwesomeText = GM_getResourceText ("fontAwesome");
+	GM_addStyle(fontAwesomeText);
 }
+
 //Add Dialogue
 {
 	let dialogueHTML = `<div id="BCM_modal" class="modal fade" tabindex="-1" role="dialog">
