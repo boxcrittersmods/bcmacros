@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.5.38
+// @version      0.3.6.39
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -170,7 +170,7 @@ function DisplaySettings() {
 	var settingHTML = `
 	<h2>Macros</h2>
 	<div class="input-group" id="bcmSettingCreate">
-		<input type="text" id="bcmSettingName" class="form-control" placeholder="Name">
+		<input type="text" id="bcmSettingName" class="form-control" placeholder="New Macro...">
 		<div class="input-group-append">
 			<input type="text" id="bcmSettingContent" class="form-control" placeholder="Action/Text">
 		  <button class="btn btn-outline-secondary" type="button" id="bcmSettingJS">JS</button>
@@ -226,8 +226,10 @@ BCMacro.prototype.dataify = function () {
 	var macro = Object.assign({},this);
 	macro.cb = macro.cb.toString();
 	if(this.button) macro.button = Object.assign({},this.button);
-	if(macro.button) macro.button.display = macro.button.html && !macro.button.html.is(":visible");
-	if(macro.button && macro.button.html) macro.button.html = undefined;
+	if(macro.button && macro.button.html) {
+		macro.button.display = macro.button.html.is(":visible");
+		macro.button.html = undefined;
+	}
 	return macro;
 }
 
