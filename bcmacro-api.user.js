@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.13.46
+// @version      0.3.14.47
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -220,7 +220,7 @@ BCMacro.prototype.toggleButton = function (color, place, text) {
 		);
 	}
 };
-BCMacro.prototype.buttonCreated = function(){this.button&&this.button.html];
+BCMacro.prototype.buttonCreated = function(){this.button&&this.button.html};
 BCMacro.prototype.buttonShowing = function(){this.buttonCreated()&&this.button.html.is(":visible")};
 BCMacro.prototype.bindKey = function (e) {
 	this.key = e.which;
