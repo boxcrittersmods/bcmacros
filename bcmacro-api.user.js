@@ -277,6 +277,9 @@ BCMacro.prototype.setupMod = function() {
 		'<i class="fas fa-cog"></i>'
 	);
 	settingsMacro.setupMod();
+	if(!settingsMacro.bindKey&&!settingsMacro.buttonShowing()) {
+		DisplaySettings();
+	}
 }
 var macros = BCMacro.macros;
 var mods = BCMacro.mods;
