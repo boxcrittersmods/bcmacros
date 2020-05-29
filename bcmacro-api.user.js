@@ -17,7 +17,7 @@
 // @grant        GM_addStyle
 // @grant        GM_getResourceText
 // @grant        unsafeWindow
-// @updateURL    https://raw.githubusercontent.com/boxcritters/BCMacroAPI/raw/master/bcmacro-api.user.js
+// @updateURL    https://github.com/boxcritters/BCMacroAPI/raw/master/bcmacro-api.user.js
 // ==/UserScript==
 
 window = unsafeWindow || window;
