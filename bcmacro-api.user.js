@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.12.45
+// @version      0.3.13.46
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -134,12 +134,12 @@ function createSetting(id, macro,mod) {
 	$("#bcm_settingList").append(settingHTML);
 	var btnButton = $(`#bcmSetting${id}-button`);
 	var btnKey = $(`#bcmSetting${id}-key`);
-	btnButton.click(() => {
+	btnButton.click(_=> {
 		btnButton.toggleClass("btn-success");
 		btnButton.toggleClass("btn-outline-secondary");
 		macro.toggleButton();
 	});
-	btnKey.click(() => {
+	btnKey.click(_=> {
 		if (binding == macro) {
 			macro.key = undefined;
 			binding = undefined;
@@ -184,22 +184,22 @@ function DisplaySettings() {
 	createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
 	var newName = $('#bcmSettingName');
 	var newContent = $('#bcmSettingContent');
-	$('#bcmSettingJS').click(() => {
+	$('#bcmSettingJS').click(_=> {
 		BCMacro.macros = BCMacro.macros||[];
 		var cb = new Function(newContent.val());
 		new BCMacro(newName.val(),cb);
 		RefreshSettings();
 	})
-	$('#bcmSettingChat').click(() => {
+	$('#bcmSettingChat').click(_=> {
 		BCMacro.macros = BCMacro.macros||[];
 		var cb = new Function("BCMacro.sendMessage("+JSON.stringify(newContent.val())+")");
 		new BCMacro(newName.val(),cb);
 		RefreshSettings();
 	})
-	$('#bcmSettingSave').click(() => {
+	$('#bcmSettingSave').click(_=> {
 		BCMacro.save();
 	})
-	$('#bcmSettingReset').click(() => {
+	$('#bcmSettingReset').click(_=> {
 		BCMacro.reset();
 	})
 	RefreshSettings();
@@ -220,8 +220,8 @@ BCMacro.prototype.toggleButton = function (color, place, text) {
 		);
 	}
 };
-BCMacro.prototype.buttonCreated = ()=>(this.button&&this.button.html);
-BCMacro.prototype.buttonShowing = ()=>(this.buttonCreated()&&this.button.html.is(":visible"));
+BCMacro.prototype.buttonCreated = function(){this.button&&this.button.html];
+BCMacro.prototype.buttonShowing = function(){this.buttonCreated()&&this.button.html.is(":visible")};
 BCMacro.prototype.bindKey = function (e) {
 	this.key = e.which;
 };
@@ -268,7 +268,7 @@ BCMacro.prototype.setupMod = function() {
 }
 
 {
-	var settingsMacro = new BCMacro("settings", ()=>{
+	var settingsMacro = new BCMacro("settings", _=>{
 		BCMacro.DisplaySettings()
 	},true);
 	settingsMacro.toggleButton(
