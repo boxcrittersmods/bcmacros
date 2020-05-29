@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.7.40
+// @version      0.3.8.41
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -119,7 +119,7 @@ function createSetting(id, macro,mod) {
 	<input type="text" class="form-control" value='${macro.name}' disabled>
 	<div class="input-group-append">
 	  <button class="btn ${
-		macro.button && macro.button.html && macro.button.html.is(":visible")
+		macro.buttonShowing()
 			? "btn-success"
 			: "btn-outline-secondary"
 		}" type="button" id="bcmSetting${id}-button">Toggle Button</button>
@@ -219,15 +219,17 @@ BCMacro.prototype.toggleButton = function (color, place, text) {
 		);
 	}
 };
+BCMacro.buttonCreated = ()=>this.button&&this.button.html
+BCMacro.buttonShowing = ()=>this.buttonCreated()&&this.button.html.is(":visible");
 BCMacro.prototype.bindKey = function (e) {
 	this.key = e.which;
 };
 BCMacro.prototype.dataify = function () {
 	var macro = Object.assign({},this);
 	macro.cb = macro.cb.toString();
-	if(this.button) macro.button = Object.assign({},this.button);
-	if(macro.button && macro.button.html) {
-		macro.button.display = macro.button.html.is(":visible");
+	macro.button = Object.assign({},this.button);
+	if(this.buttonCreated()) {
+		macro.button.display = this.buttonShowing();
 		macro.button.html = undefined;
 	}
 	return macro;
@@ -253,9 +255,8 @@ BCMacro.prototype.setupMod = function() {
 	modSettings.forEach(m=>{
 		if(m.name==this.name) {
 			this.key = m.key;
-			if(this.button) {
-				var thisButtonDisplay = this.button.html && this.button.html.is(":visible");
-				if(thisButtonDisplay!=m.button.display) this.toggleButton();
+			if(this.buttonCreated()) {
+				if(this.buttonShowing()!=m.button.display) this.toggleButton();
 			} else if(m.button) {
 				this.toggleButton(m.button.color,m.button.place,m.button.text);
 				if(!m.button.display) this.toggleButton();
