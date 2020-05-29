@@ -1,13 +1,30 @@
-window = unsafeWindow || window;
-var chatBar = document.getElementsByClassName("input-group")[0];
-
+// ==UserScript==
+// @name         BCMacro API
+// @namespace    http://discord.gg/G3PTYPy
+// @version      0.3.16.49
+// @description  Adds Buttons and Keybinds to Box Critters
+// @author       TumbleGamer
+// @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
+// @require      https://code.jquery.com/jquery-3.5.1.slim.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js
+// @require      https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js
+// @match        https://play.boxcritters.com/*
+// @match        http://play.boxcritters.com/*
+// @run-at       document-end
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_deleteValue
+// @grant        GM_addStyle
+// @grant        GM_getResourceText
+// @grant        unsafeWindow
+// @updateURL    https://github.com/boxcritters/BCMacroAPI/raw/master/bcmacro-api.user.js
+// ==/UserScript==
 {
+	//Initialisation
 	var fontAwesomeText = GM_getResourceText ("fontAwesome");
 	GM_addStyle(fontAwesomeText);
-}
 
-//Add Dialogue
-{
+	//Setup Dialog
 	let dialogueHTML = `<div id="BCM_modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -22,23 +39,18 @@ var chatBar = document.getElementsByClassName("input-group")[0];
 	document.body.insertAdjacentHTML("afterbegin", dialogueHTML);
 }
 
-var GM_SLOTS = {
-	mods:"BCMacros_mods",
-	macros:"BCMacros_macros"
-}
-
-function BCMacroLog(...t) {
-	console.log("[BCMacros]",...t);
-}
-
-function camelize(str) {
-	return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
-		if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
-		return index === 0 ? match.toLowerCase() : match.toUpperCase();
-	});
-}
-
+/**
+ * @module
+ * @name BCMacro
+ * @Author TumbleGamer <tumblegamer@gmail.com>
+ */
 class BCMacro {
+	/**
+	 * Creates a macro
+	 * @param {string} name 
+	 * @param {Function} cb 
+	 * @param {boolean} mod 
+	 */
 	constructor(name, cb, mod) {
 		this.name = name;
 		if (typeof cp == "function") {
@@ -60,5 +72,45 @@ class BCMacro {
 		}
 		GM_setValue(GM_SLOTS.macros, BCMacro.macros.map(m=>m.dataify()));
 		console.log("[BCMacros] Macros Saved.");
+	}
+
+	static DisplaySettings() {
+
+	}
+	
+	toggleButton(color,place,text) {
+
+	}
+
+	/**
+	 * 
+	 * @param {number} key 
+	 */
+	bindKey(key) {
+
+	}
+
+	/**
+	 * @returns {boolean}
+	 */
+	buttonCreated() {
+		return false;
+	}
+
+	/**
+	 * @returns {boolean}
+	 */
+	buttonShowing() {
+		return false;
+	}
+	setupMod() {
+		
+	}
+
+	/**
+	 * @returns {Object}
+	 */
+	dataify() {
+
 	}
 }

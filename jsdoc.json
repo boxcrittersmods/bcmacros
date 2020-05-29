@@ -1,0 +1,15 @@
+{
+	"opts": {
+		"destination": "docs"
+	},
+	"plugins": ["plugins/markdown"],
+	"templates": {
+		"systemName": "BCMacro API",
+		"copyright": "Copyright 2019-<script>document.write(new Date().getFullYear());</script> The Box Critters Modding Community.",
+		"search": false,
+		"includeDate": false
+	},
+	"source": {
+		"includePattern": ".+\\.(m|c)?js(doc|x)?$"
+	}
+}
