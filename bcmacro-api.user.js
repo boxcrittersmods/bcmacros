@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.6.39
+// @version      0.3.7.40
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -254,7 +254,7 @@ BCMacro.prototype.setupMod = function() {
 		if(m.name==this.name) {
 			this.key = m.key;
 			if(this.button) {
-				var thisButtonDisplay = this.button.html && !this.button.html.is(":visible");
+				var thisButtonDisplay = this.button.html && this.button.html.is(":visible");
 				if(thisButtonDisplay!=m.button.display) this.toggleButton();
 			} else if(m.button) {
 				this.toggleButton(m.button.color,m.button.place,m.button.text);
