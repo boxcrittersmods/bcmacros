@@ -19,6 +19,11 @@
 // @grant        unsafeWindow
 // @updateURL    https://github.com/boxcritters/BCMacroAPI/raw/master/bcmacro-api.user.js
 // ==/UserScript==
+/**
+ * bcmacro-api.user.js
+ * 
+ * 
+ */
 {
 	//Initialisation
 	var fontAwesomeText = GM_getResourceText ("fontAwesome");
@@ -37,80 +42,4 @@
         </div>
 	</div>`;
 	document.body.insertAdjacentHTML("afterbegin", dialogueHTML);
-}
-
-/**
- * @module
- * @name BCMacro
- * @Author TumbleGamer <tumblegamer@gmail.com>
- */
-class BCMacro {
-	/**
-	 * Creates a macro
-	 * @param {string} name 
-	 * @param {Function} cb 
-	 * @param {boolean} mod 
-	 */
-	constructor(name, cb, mod) {
-		this.name = name;
-		if (typeof cp == "function") {
-			this.cb = cb;
-		} else {
-			throw cb + "is not a function.";
-		}
-	}
-
-	static sendMessage(t) {
-		world.message(t);
-	}
-
-	static save() {
-		GM_setValue(GM_SLOTS.mods, BCMacro.mods.map(m=>m.dataify()));
-		if(!BCMacro.macros) {
-			GM_setValue(GM_SLOTS.macros, []);
-			return;
-		}
-		GM_setValue(GM_SLOTS.macros, BCMacro.macros.map(m=>m.dataify()));
-		console.log("[BCMacros] Macros Saved.");
-	}
-
-	static DisplaySettings() {
-
-	}
-	
-	toggleButton(color,place,text) {
-
-	}
-
-	/**
-	 * 
-	 * @param {number} key 
-	 */
-	bindKey(key) {
-
-	}
-
-	/**
-	 * @returns {boolean}
-	 */
-	buttonCreated() {
-		return false;
-	}
-
-	/**
-	 * @returns {boolean}
-	 */
-	buttonShowing() {
-		return false;
-	}
-	setupMod() {
-		
-	}
-
-	/**
-	 * @returns {Object}
-	 */
-	dataify() {
-
-	}
 }
