@@ -91,7 +91,6 @@ function createButton(name, cb, color = "info", place = "afterend", text) {
 		place:place,
 		text:text,
 		html: undefined,
-		display:true
 	};
 	var btnHTML = `<span class="input-group-btn"><button id="bcmacros${camelize(
 		name
