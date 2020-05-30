@@ -33,10 +33,6 @@ Go on to the [BoxCritters Website](https://boxcritters.com) and click the the âš
 
 When making macros for your mod, enable the mod flag in the constructor so it gets deleted each refresh. After setting up your default settings, run `setupMod()` on your macro to apply the user settings.
 
-### API Reference
-
-All documentation lives [here](http://github.boxcrittersmods.ga/bcmacroapi)
-
 ### Examples
 
 View some simple usage examples [here](https://github.com/boxcritters/bcmacroapi/tree/master/test).
