@@ -371,7 +371,7 @@ class BCMacro {
 	/**
 	 * 
 	 * @param {external:JQueryEvent} e 
-	 * @param {Number} e.type
+	 * @param {Number} e.which the keycode of the event
 	 */
 	bindKey(e) {
 		/**
