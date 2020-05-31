@@ -400,7 +400,7 @@ class BCMacro {
 	}
 
 	/**
-	 * Sets up macro with user preferences
+	 * Sets up a mod created macro with user preferences
 	 */
 	setupMod() {
 		modSettings.forEach(m => {
