@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.3.16.49
+// @version      0.3.17.50
 // @description  Adds Macro API
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -24,7 +24,7 @@ window = unsafeWindow || window;
 var chatBar = document.getElementsByClassName("input-group")[0];
 
 {
-	var fontAwesomeText = GM_getResourceText ("fontAwesome");
+	var fontAwesomeText = GM_getResourceText("fontAwesome");
 	GM_addStyle(fontAwesomeText);
 }
 
@@ -51,14 +51,14 @@ function BCMacro(name, cb, mod) {
 	this.cb = cb;
 	this.button = undefined;
 	this.key = undefined;
-	if(mod){
+	if (mod) {
 		BCMacro.mods.push(this);
 	} else {
 		BCMacro.macros.push(this);
 	}
 }
 window.BCMacro = BCMacro;
-BCMacro.sendMessage = (t)=>{world.message(t)};
+BCMacro.sendMessage = (t) => { world.message(t) };
 
 function camelize(str) {
 	return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
@@ -68,12 +68,12 @@ function camelize(str) {
 }
 
 function save() {
-	GM_setValue("BCMacros_mods", BCMacro.mods.map(m=>m.dataify()));
-	if(!BCMacro.macros) {
+	GM_setValue("BCMacros_mods", BCMacro.mods.map(m => m.dataify()));
+	if (!BCMacro.macros) {
 		GM_setValue("BCMacros_macros", []);
 		return;
 	}
-	GM_setValue("BCMacros_macros", BCMacro.macros.map(m=>m.dataify()));
+	GM_setValue("BCMacros_macros", BCMacro.macros.map(m => m.dataify()));
 	console.log("[BCMacros] Macros Saved.");
 }
 BCMacro.save = save;
@@ -86,10 +86,10 @@ BCMacro.reset = reset;
 
 function createButton(name, cb, color = "info", place = "afterend", text) {
 	var button = {
-		cb:cb,
-		color:color,
-		place:place,
-		text:text,
+		cb: cb,
+		color: color,
+		place: place,
+		text: text,
 		html: undefined,
 	};
 	var btnHTML = `<span class="input-group-btn"><button id="bcmacros${camelize(
@@ -112,7 +112,7 @@ function createDialogue(header, body, footer) {
 BCMacro.createDialogue = createDialogue;
 
 var binding = undefined;
-function createSetting(id, macro,mod) {
+function createSetting(id, macro, mod) {
 	var settingHTML = $(`<div class="list-group-item"><div class="input-group" id="bcmSetting${camelize(
 		id
 	)}">
@@ -133,12 +133,12 @@ function createSetting(id, macro,mod) {
 	$("#bcm_settingList").append(settingHTML);
 	var btnButton = $(`#bcmSetting${id}-button`);
 	var btnKey = $(`#bcmSetting${id}-key`);
-	btnButton.click(_=> {
+	btnButton.click(_ => {
 		btnButton.toggleClass("btn-success");
 		btnButton.toggleClass("btn-outline-secondary");
 		macro.toggleButton();
 	});
-	btnKey.click(_=> {
+	btnKey.click(_ => {
 		if (binding == macro) {
 			macro.key = undefined;
 			binding = undefined;
@@ -157,10 +157,10 @@ function createSetting(id, macro,mod) {
 
 function RefreshSettings() {
 	$("#bcm_settingList").empty();
-	(BCMacro.mods||[]).forEach((a) => {
-		createSetting(camelize(a.name), a,true);
+	(BCMacro.mods || []).forEach((a) => {
+		createSetting(camelize(a.name), a, true);
 	});
-	(BCMacro.macros||[]).forEach((a) => {
+	(BCMacro.macros || []).forEach((a) => {
 		createSetting(camelize(a.name), a);
 	});
 }
@@ -183,22 +183,22 @@ function DisplaySettings() {
 	createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
 	var newName = $('#bcmSettingName');
 	var newContent = $('#bcmSettingContent');
-	$('#bcmSettingJS').click(_=> {
-		BCMacro.macros = BCMacro.macros||[];
+	$('#bcmSettingJS').click(_ => {
+		BCMacro.macros = BCMacro.macros || [];
 		var cb = new Function(newContent.val());
-		new BCMacro(newName.val(),cb);
+		new BCMacro(newName.val(), cb);
 		RefreshSettings();
 	})
-	$('#bcmSettingChat').click(_=> {
-		BCMacro.macros = BCMacro.macros||[];
-		var cb = new Function("BCMacro.sendMessage("+JSON.stringify(newContent.val())+")");
-		new BCMacro(newName.val(),cb);
+	$('#bcmSettingChat').click(_ => {
+		BCMacro.macros = BCMacro.macros || [];
+		var cb = new Function("BCMacro.sendMessage(" + JSON.stringify(newContent.val()) + ")");
+		new BCMacro(newName.val(), cb);
 		RefreshSettings();
 	})
-	$('#bcmSettingSave').click(_=> {
+	$('#bcmSettingSave').click(_ => {
 		BCMacro.save();
 	})
-	$('#bcmSettingReset').click(_=> {
+	$('#bcmSettingReset').click(_ => {
 		BCMacro.reset();
 	})
 	RefreshSettings();
@@ -219,64 +219,61 @@ BCMacro.prototype.toggleButton = function (color, place, text) {
 		);
 	}
 };
-BCMacro.prototype.buttonCreated = function(){return this.button&&this.button.html};
-BCMacro.prototype.buttonShowing = function(){return this.buttonCreated()&&this.button.html.is(":visible")};
+BCMacro.prototype.buttonCreated = function () { return this.button && this.button.html };
+BCMacro.prototype.buttonShowing = function () { return this.buttonCreated() && this.button.html.is(":visible") };
 BCMacro.prototype.bindKey = function (e) {
 	this.key = e.which;
 };
 BCMacro.prototype.dataify = function () {
-	var macro = Object.assign({},this);
+	var macro = Object.assign({}, this);
 	macro.cb = macro.cb.toString();
-	macro.button = Object.assign({},this.button);
-	if(this.buttonCreated()) {
+	macro.button = Object.assign({}, this.button);
+	if (this.buttonCreated()) {
 		macro.button.display = this.buttonShowing();
 		macro.button.html = undefined;
 	}
 	return macro;
 }
 
-var modSettings = GM_getValue("BCMacros_mods",[]);
+var modSettings = GM_getValue("BCMacros_mods", []);
 BCMacro.macros = GM_getValue("BCMacros_macros", []);
 BCMacro.mods = [];
 console.log("[BCMacros] Data Loaded.");
 if (BCMacro.macros) {
-	BCMacro.macros = BCMacro.macros.map(m=>{
-		var macro = new BCMacro(m.name,eval("("+m.cb+")"));
+	BCMacro.macros = BCMacro.macros.map(m => {
+		var macro = new BCMacro(m.name, eval("(" + m.cb + ")"));
 		macro.key = m.key;
-		if(m.button ) {
-			macro.toggleButton(m.button.color,m.button.place,m.button.text);
-			if(!m.button.display) macro.toggleButton();
+		if (m.button) {
+			macro.toggleButton(m.button.color, m.button.place, m.button.text);
+			if (!m.button.display) macro.toggleButton();
 		}
 		return macro;
 	});
 }
 
-BCMacro.prototype.setupMod = function() {
-	modSettings.forEach(m=>{
-		if(m.name==this.name) {
+BCMacro.prototype.setupMod = function () {
+	modSettings.forEach(m => {
+		if (m.name == this.name) {
 			this.key = m.key;
-			if(this.buttonCreated()) {
-				if(this.buttonShowing()!=m.button.display) this.toggleButton();
-			} else if(m.button) {
-				this.toggleButton(m.button.color,m.button.place,m.button.text);
-				if(!m.button.display) this.toggleButton();
-			}
+			var mButtonShowing = m.button & m.button.display;
+			if (m.buttonShowing != this.buttonShowing())
+				this.toggleButton(m.button.color, m.button.place, m.button.text);
 		}
 	})
 
 }
 
 {
-	var settingsMacro = new BCMacro("settings", _=>{
+	var settingsMacro = new BCMacro("settings", _ => {
 		BCMacro.DisplaySettings()
-	},true);
+	}, true);
 	settingsMacro.toggleButton(
 		"primary",
 		"beforeend",
 		'<i class="fas fa-cog"></i>'
 	);
 	settingsMacro.setupMod();
-	if(!settingsMacro.bindKey&&!settingsMacro.buttonShowing()) {
+	if (!settingsMacro.bindKey && !settingsMacro.buttonShowing()) {
 		DisplaySettings();
 	}
 }
@@ -289,29 +286,29 @@ var mods = BCMacro.mods;
 window.addEventListener(
 	"load",
 	async function () {
-		
 
-	$(document).keydown(function (e) {
-		if (binding) {
-			binding.bindKey(e);
-			binding = undefined;
-			RefreshSettings();
-			return;
-		}
-		mods.forEach((a) => {
-			if (a.key == e.which) {
-				console.log("[BCMacros] Triggering", a.name, "by key...");
-				a.cb();
+
+		$(document).keydown(function (e) {
+			if (binding) {
+				binding.bindKey(e);
+				binding = undefined;
+				RefreshSettings();
+				return;
 			}
+			mods.forEach((a) => {
+				if (a.key == e.which) {
+					console.log("[BCMacros] Triggering", a.name, "by key...");
+					a.cb();
+				}
+			});
+			macros.forEach((a) => {
+				if (a.key == e.which) {
+					console.log("[BCMacros] Triggering", a.name, "by key...");
+					a.cb();
+				}
+			});
 		});
-		macros.forEach((a) => {
-			if (a.key == e.which) {
-				console.log("[BCMacros] Triggering", a.name, "by key...");
-				a.cb();
-			}
-		});
-	});
-		
+
 	},
 	false
 );

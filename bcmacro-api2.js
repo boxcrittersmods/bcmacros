@@ -157,6 +157,22 @@ function RefreshSettings() {
  * @property {external:JQuery} html
  * 
  */
+/**
+ * @interface BCDataifyedMacro
+ * @property {String} name The name of the macro
+ * @property {String} cb Action for the button to perform
+ * @property {BCDataifiedMacroButton} button
+ * @property {Number} key
+ * 
+ */
+/**
+ * @interface BCDataifiedMacroButton
+ * @property {BootstrapColor} color The Bootstrap color of the button
+ * @property {InsertPosition} place The polace of the button
+ * @property {String} text
+ * @property {Boolean} display
+ * 
+ */
 
  
 /**
@@ -310,7 +326,29 @@ class BCMacro {
 	 * @param {Number} e.type
 	 */
 	bindKey(e) {
+		/**
+		 * @type {Number}
+		 */
 		this.key = e.which;
+	}
+
+	/**
+	 * Convert the macro to something ready to be saved
+	 * @return {BCDataifyedMacro} Dataifyed Macro
+	 */
+	dataify() {
+		/**
+		 * @type {BCMacro|BCDataifiedMacro}
+		 */
+		var macro = Object.assign({},this);
+		macro.cb = macro.cb.toString();
+		macro.button = Object.assign({},this.button);
+		if(this.buttonCreated()) {
+			macro.button.display = this.buttonShowing();
+			macro.button.html = undefined;
+		}
+		return macro;
+
 	}
 }
 window.BCMacro = BCMacro;
