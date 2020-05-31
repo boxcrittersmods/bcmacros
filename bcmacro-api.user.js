@@ -44,7 +44,6 @@
  * @copyright 2020 TumbleGamer <tumblegamer@gmail.com>
  * @copyright 2020 The Box Critters Modding Community
  * @license Apatche-2.0
- * @version 0.4.0.x
  */
 /**
  * jQuery object
