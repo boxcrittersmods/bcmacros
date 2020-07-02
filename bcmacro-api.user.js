@@ -1,15 +1,19 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.4.0.51
+// @version      0.4.2.53
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
 // @require      https://code.jquery.com/jquery-3.5.1.slim.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js
 // @require      https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js
-// @match        https://play.boxcritters.com/*
-// @match        http://play.boxcritters.com/*
+// @match        https://boxcritters.com/play/
+// @match        https://boxcritters.com/play/?*
+// @match        https://boxcritters.com/play/#*
+// @match        https://boxcritters.com/play/index.html
+// @match        https://boxcritters.com/play/index.html?*
+// @match        https://boxcritters.com/play/index.html#*
 // @run-at       document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
