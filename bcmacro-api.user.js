@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.4.2.53
+// @version      0.5.0.56
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -105,7 +105,7 @@
 
 window = unsafeWindow || window;
 // Place to use for buttons
-var chatBar = document.getElementsByClassName('input-group')[0];
+var chatBar = document.getElementById('menu');
 var modSettings = GM_getValue("BCMacros_mods", []);
 var binding = undefined;
 
@@ -116,18 +116,22 @@ function camelize(str) {
 	});
 }
 
-function createButton(name, cb, color = "info", place = "afterend", text) {
+function createButton(name, cb, color = "info", place = "afterend", text,link) {
 	var button = {
 		cb:cb,
 		color:color,
 		place:place,
 		text:text,
 		html: undefined,
-		display:true
+		display:true,
+		link
 	};
-	var btnHTML = `<span class="input-group-btn"><button id="bcmacros${camelize(
-		name
-	)}" class="btn btn-${color}">${text || name}</button></span>`;
+	var btnHTML = `
+	<span class="input-group-btn" style="touch-action: none;">
+                    <button  id="bcmacros${camelize(name)}" class="btn ${link?"btn-link p-0":"btn-lg"} btn-${color} ">
+						${text || name}
+                    </button>
+                </span>`;
 	chatBar.insertAdjacentHTML(place, btnHTML);
 	$(`#bcmacros${camelize(name)}`).click(cb);
 	button.html = $(`#bcmacros${camelize(name)}`);
