@@ -216,6 +216,7 @@ function setupMacro(macro,settings) {
  * @property {String} text
  * @property {external:JQuery} html
  * @property {Boolean} display weather the button is visible
+ * @property {Boolean} link (useful for using images) Dispay the button as raw text
  * 
  */
 /**
