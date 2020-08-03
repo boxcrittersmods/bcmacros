@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.5.1.57
+// @version      0.5.2.58
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -20,7 +20,6 @@
 // @grant        GM_deleteValue
 // @grant        GM_addStyle
 // @grant        GM_getResourceText
-// @grant        unsafeWindow
 // @updateURL    https://github.com/boxcritters/BCMacroAPI/raw/master/bcmacro-api.user.js
 // ==/UserScript==
 /**
@@ -420,7 +419,10 @@ class BCMacro {
 		
 	}
 }
-window.BCMacro = BCMacro;
+//MAIN_WIN.BCMacro = BCMacro;
+exportFunction(BCMacro,unsafeWindow,{
+	defineAs: "BCMacro"
+  });
 
 // Init Macros
 /**
