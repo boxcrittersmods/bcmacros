@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.5.2.58
+// @version      0.5.3.59
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -203,7 +203,7 @@ function setupMacro(macro,settings) {
 	macro.key = settings.key;
 	var settingButtonShowing = settings.button && settings.button.display;
 	//TODO: Cheack this
-	if (settingButtonShowing != macro.buttonShowing())
+	if (setting.button && settingButtonShowing != macro.buttonShowing())
 		macro.toggleButton(settings.button.color, settings.button.place, settings.button.text);
 }
 
