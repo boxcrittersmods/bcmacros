@@ -203,7 +203,7 @@ function setupMacro(macro,settings) {
 	macro.key = settings.key;
 	var settingButtonShowing = settings.button && settings.button.display;
 	//TODO: Cheack this
-	if (setting.button && settingButtonShowing != macro.buttonShowing())
+	if (settings.button && settingButtonShowing != macro.buttonShowing())
 		macro.toggleButton(settings.button.color, settings.button.place, settings.button.text);
 }
 
