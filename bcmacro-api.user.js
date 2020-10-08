@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.5.5.62
+// @version      0.5.5.63
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -86,7 +86,7 @@ cardboard.register("BCMACROS")
  * @see {@link https://getbootstrap.com/docs/4.5/utilities/colors/}
  * @typedef {String} BootstrapColor
  */
-cardboard.on("loadScripts",()=>{
+document.addEventListener("load",()=>{
 	
 	'use strict';
 	//Initialisation
