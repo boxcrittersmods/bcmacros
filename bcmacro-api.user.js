@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.5.5.61
+// @version      0.5.5.62
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -178,7 +178,7 @@ function createSetting(id, macro) {
 		btnButton.toggleClass("btn-outline-secondary");
 		macro.toggleButton();
 	});
-	btnKey.click(_ => {
+	btnKey.on("click",_ => {
 		if (binding == macro) {
 			macro.key = undefined;
 			binding = undefined;
@@ -381,6 +381,7 @@ class BCMacro {
 				text
 			);
 		}
+		return this;
 	}
 	/**
 	 * 
@@ -392,6 +393,7 @@ class BCMacro {
 		 * @type {Number}
 		 */
 		this.key = e.which;
+		return this;
 	}
 
 	/**
@@ -422,6 +424,7 @@ class BCMacro {
 				setupMacro(this,m);
 			}
 		})
+		return this;
 		
 	}
 }
