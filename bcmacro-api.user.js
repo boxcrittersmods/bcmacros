@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.5.5.63
+// @version      0.5.5.6
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -86,6 +86,7 @@ cardboard.register("BCMACROS")
  * @see {@link https://getbootstrap.com/docs/4.5/utilities/colors/}
  * @typedef {String} BootstrapColor
  */
+
 document.addEventListener("load",()=>{
 	
 	'use strict';
@@ -106,11 +107,13 @@ document.addEventListener("load",()=>{
         </div>
 	</div>`;
 	document.body.insertAdjacentHTML("afterbegin", dialogueHTML);
+
+	chatBar = document.getElementById('menu');
 })
 
 window = unsafeWindow || window;
 // Place to use for buttons
-var chatBar = document.getElementById('menu');
+var chatBar;
 var modSettings = GM_getValue("BCMacros_mods", []);
 var binding = undefined;
 
