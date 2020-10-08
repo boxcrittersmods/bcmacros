@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.5.5.65
+// @version      0.5.5.66
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -87,7 +87,7 @@ cardboard.register("BCMACROS")
  * @typedef {String} BootstrapColor
  */
 var DOC_LOADED = false;
-document.addEventListener("load",()=>{
+window.addEventListener("load",()=>{
 	
 	'use strict';
 	//Initialisation
@@ -110,6 +110,7 @@ document.addEventListener("load",()=>{
 
 	chatBar = document.getElementById('menu');
 	DOC_LOADED = true;
+	console.log("Document Loaded");
 })
 
 async function runIfDocLoaded(func) {
