@@ -110,7 +110,7 @@ window.addEventListener("load",()=>{
 
 	chatBar = document.getElementById('menu');
 	DOC_LOADED = true;
-	console.log("Document Loaded");
+	console.log("[BCM] Document Loaded");
 })
 
 async function runIfDocLoaded(func) {
@@ -308,7 +308,7 @@ class BCMacro {
 			return;
 		}
 		GM_setValue("BCMacros_macros", BCMacro.macros.map(m=>m.dataify()));
-		console.log("[BCMacros] Macros Saved.");
+		console.log("[BCM] Macros Saved.");
 	}
 
 	/**
@@ -485,13 +485,13 @@ window.addEventListener(
 			}
 			BCMacro.mods.forEach((a) => {
 				if (a.key == e.which) {
-					console.log("[BCMacros] Triggering", a.name, "by key...");
+					console.log("[BCM] Triggering", a.name, "by key...");
 					a.cb();
 				}
 			});
 			BCMacro.macros.forEach((a) => {
 				if (a.key == e.which) {
-					console.log("[BCMacros] Triggering", a.name, "by key...");
+					console.log("[BCM] Triggering", a.name, "by key...");
 					a.cb();
 				}
 			});
