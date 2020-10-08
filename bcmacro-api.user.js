@@ -86,7 +86,7 @@ cardboard.register("BCMACROS")
  * @see {@link https://getbootstrap.com/docs/4.5/utilities/colors/}
  * @typedef {String} BootstrapColor
  */
-
+var DOC_LOADED = false;
 document.addEventListener("load",()=>{
 	
 	'use strict';
@@ -109,7 +109,19 @@ document.addEventListener("load",()=>{
 	document.body.insertAdjacentHTML("afterbegin", dialogueHTML);
 
 	chatBar = document.getElementById('menu');
+	DOC_LOADED = true;
 })
+
+async function runIfDocLoaded(func) {
+	if(!DOC_LOADED) {
+		return await new Promise(async (resolve,reject)=>{
+			document.addEventListener("load",()=>{
+				await resolve(func());
+			})
+		})
+	}
+	return await func();
+}
 
 window = unsafeWindow || window;
 // Place to use for buttons
@@ -139,10 +151,12 @@ function createButton(name, cb, color = "info", place = "afterend", text,link) {
                     <button  id="bcmacros${camelize(name)}" class="btn ${link?"btn-link p-0":"btn-lg"} btn-${color} ">
 						${text || name}
                     </button>
-                </span>`;
-	chatBar.insertAdjacentHTML(place, btnHTML);
-	$(`#bcmacros${camelize(name)}`).click(cb);
-	button.html = $(`#bcmacros${camelize(name)}`);
+				</span>`;
+	runIfDocLoaded(()=>{
+		chatBar.insertAdjacentHTML(place, btnHTML);
+		$(`#bcmacros${camelize(name)}`).on("click",cb);
+		button.html = $(`#bcmacros${camelize(name)}`);
+	})
 	return button;
 }
 
