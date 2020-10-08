@@ -115,8 +115,8 @@ document.addEventListener("load",()=>{
 async function runIfDocLoaded(func) {
 	if(!DOC_LOADED) {
 		return await new Promise(async (resolve,reject)=>{
-			document.addEventListener("load",()=>{
-				await resolve(func());
+			document.addEventListener("load",async ()=>{
+				resolve(await func());
 			})
 		})
 	}
