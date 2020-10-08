@@ -1,27 +1,32 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.5.4.60
+// @version      0.5.5.61
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
 // @require      https://code.jquery.com/jquery-3.5.1.slim.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js
 // @require      https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js
+// @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
+// @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
+// @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
 // @match        https://boxcritters.com/play/index.html
 // @match        https://boxcritters.com/play/index.html?*
 // @match        https://boxcritters.com/play/index.html#*
-// @run-at       document-end
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
 // @grant        GM_addStyle
 // @grant        GM_getResourceText
 // @updateURL    https://github.com/boxcritters/BCMacroAPI/raw/master/bcmacro-api.user.js
+// @run-at       document-start
 // ==/UserScript==
+
+cardboard.register("BCMACROS")
 /**
  * bcmacro-api.user.js
  * 
@@ -81,7 +86,8 @@
  * @see {@link https://getbootstrap.com/docs/4.5/utilities/colors/}
  * @typedef {String} BootstrapColor
  */
-{
+cardboard.on("loadScripts",()=>{
+	
 	'use strict';
 	//Initialisation
 	var fontAwesomeText = GM_getResourceText("fontAwesome");
@@ -100,7 +106,7 @@
         </div>
 	</div>`;
 	document.body.insertAdjacentHTML("afterbegin", dialogueHTML);
-}
+})
 
 window = unsafeWindow || window;
 // Place to use for buttons
@@ -316,22 +322,22 @@ class BCMacro {
 		createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
 		var newName = $('#bcmSettingName');
 		var newContent = $('#bcmSettingContent');
-		$('#bcmSettingJS').click(_=> {
+		$('#bcmSettingJS').on("click",_=> {
 			BCMacro.macros = BCMacro.macros||[];
 			var cb = new Function(newContent.val());
 			new BCMacro(newName.val(),cb);
 			RefreshSettings();
 		})
-		$('#bcmSettingChat').click(_=> {
+		$('#bcmSettingChat').on("click",_=> {
 			BCMacro.macros = BCMacro.macros||[];
 			var cb = new Function("BCMacro.sendMessage("+JSON.stringify(newContent.val())+")");
 			new BCMacro(newName.val(),cb);
 			RefreshSettings();
 		})
-		$('#bcmSettingSave').click(_=> {
+		$('#bcmSettingSave').on("click",_=> {
 			BCMacro.save();
 		})
-		$('#bcmSettingReset').click(_=> {
+		$('#bcmSettingReset').on("click",_=> {
 			BCMacro.reset();
 		})
 		RefreshSettings();
