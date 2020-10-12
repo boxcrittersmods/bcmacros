@@ -46,9 +46,12 @@ if(!BCMacro) {
 
 // Runs on page load
 window.addEventListener("load", async function () {
-	var helloMacro = new BCMacro("Hello", _=>{
-		BCMacro.sendMessage("Hello World");
-	},true);
-	helloMacro.toggleButton("success");
-	helloMacro.setupMod();
+	var testPack = BCMacros.CreateMacroPack("test");
+	testPack.createMacro({
+		name:"Hello",
+		action:function() {
+			BCMacro.sendMessage("Hello World");
+		},
+		button:{}
+	});
 });
