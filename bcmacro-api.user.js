@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.6.0.75
+// @version      0.6.1.76
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -231,7 +231,6 @@ function RefreshSettings(notice) {
 		var heading = document.createElement("h5");
 		heading.classList.add("card-title")
 		heading.innerText = pack.name;
-		heading.style.margin = 0;
 		list.appendChild(heading);
 		if (pack.macros.length == 0) {
 			var heading = document.createElement("p");
