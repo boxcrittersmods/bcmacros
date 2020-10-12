@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.5.5.67
+// @version      0.6.0.75
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -252,7 +252,7 @@ function RefreshSettings(notice) {
 
 
 function isSettingsOpen() {
-	var settings = document.getElementById("bcm_settingList");
+	var settings = document.getElementById("BCM_modal");
 	if(!settings) return;
 	return  window.getComputedStyle(settings).display !== "none";
 }
@@ -465,13 +465,10 @@ runIfDocLoaded(
 				return;
 			}
 
-			var macro = macros.filter(a => a.key == e.key)
+			var macro = macros.find(a => a.key == e.key)
 			if (!macro) return;
 			if (isSettingsOpen()) {
-				var setting = document.getElementById("bcmSetting_" + macro.id);
-				[].forEach.call(setting.childNodes, function (child) {
-					child.classList.add("bg-light")
-				});
+				document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.add("bg-success","text-white")
 			} else {
 				console.log("[BCM] Triggering", macro.name, "by key...");
 				macro.action();
@@ -482,13 +479,10 @@ runIfDocLoaded(
 
 document.addEventListener("keyup", function (e) {
 
-	var macro = macros.filter(a => a.key == e.key)
+	var macro = macros.find(a => a.key == e.key)
 	if (!macro) return;
 	if (isSettingsOpen()) {
-		var setting = document.getElementById("bcmSetting_" + macro.id);
-		[].forEach.call(setting.childNodes, function (child) {
-			child.classList.add("bg-light")
-		});
+		document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.remove("bg-success","text-white")
 	}
 
 }, false);
