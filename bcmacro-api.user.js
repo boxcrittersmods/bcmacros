@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.6.3.81
+// @version      0.6.4.82
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -9,6 +9,7 @@
 // @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
+// @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -25,6 +26,7 @@
 // ==/UserScript==
 console.log("[BCMacros] by TumbleGamer")
 cardboard.register("BCMACROS")
+console.log(ctrlPanel)
 /**
  * bcmacro-api.user.js
  * 
@@ -164,7 +166,6 @@ async function createButton(name, cb, color = "info", place = 'beforeend', text,
 		button = document.getElementById(`bcmacros${camelize(name)}`);
 		button.addEventListener("click",cb);
 	})
-	console.log("Created button",button);
 	return button.parentElement;
 }
 
@@ -375,22 +376,28 @@ class Macro {
 
 	enableButton(button) {
 		if(this.button) return;
-		this.button = button = Object.assign({
-			color:"info",
-			text:this.id
-
+		button = Object.assign({
+			location:"bottom",
+			text:this.id,
+			color:"outline-info",
+			size:"md"
 		},button);
-		createButton(this.id,this.action,button.color,undefined, button.text).then(button=>{
-			this.button.id = this.getPack().buttons.push(button)-1;
-
-		})
+		var buttonElement = ctrlPanel.addButton(
+			button.location,
+			button.text,
+			button.color,
+			button.size
+		)
+		button.id = this.getPack().buttons.push(buttonElement)-1;
+		this.button = button;
 		return this;
 	}
 	disableButton() {
 		if(!this.button) return;
-		//remove button from getPack().buttonGroup
-		removeButton(this.getPack().buttons[this.button.id])
-
+		var pack = this.getPack();
+		var button = pack.buttons[this.button.id];
+		ctrlPanel.removeButton(button);
+		pack.buttons = pack.buttons.splice(this.button.id,1);
 		delete this.button;
 		return this;
 	}
@@ -409,10 +416,14 @@ class Macro {
  * MacroPack
  */
 class MacroPack {
-	constructor({ name }) {
+	constructor({ name/*,btnGroupOptions*/ }) {
 		this.id = camelize(name);
 		this.name = name;
-		this.btnGroup = null;
+		/*btnGroupOptions = Object.assign({
+			location:"bottom",
+			size:"md"
+		},btnGroupOptions)
+		this.btnGroup = ctrlPanel.addButtonGroup(btnGroupOptions.location,btnGroupOptions.size);*/
 		this.macros = [];
 		this.buttons = [];
 	}
