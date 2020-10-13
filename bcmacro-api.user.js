@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.6.2.80
+// @version      0.6.3.81
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -165,7 +165,7 @@ async function createButton(name, cb, color = "info", place = 'beforeend', text,
 		button.addEventListener("click",cb);
 	})
 	console.log("Created button",button);
-	return button;
+	return button.parentElement;
 }
 
 function removeButton(btn) {
@@ -188,7 +188,6 @@ function save() {
 function reset() {
 	data = [];
 	for(let macroId in macros) {
-		console.log("removal")
 		macros[macroId].disableButton();
 	}
 	macros = [];
@@ -390,7 +389,7 @@ class Macro {
 	disableButton() {
 		if(!this.button) return;
 		//remove button from getPack().buttonGroup
-		this.getPack().buttons[this.button.id]
+		removeButton(this.getPack().buttons[this.button.id])
 
 		delete this.button;
 		return this;
