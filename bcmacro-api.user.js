@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.6.1.76
+// @version      0.6.2.80
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -56,6 +56,7 @@ cardboard.register("BCMACROS")
  * @see {@link hhttps://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent}
  */
 var DOC_LOADED = false;
+var chatBar;
 window.addEventListener("load", () => {
 	DOC_LOADED = true;
 	console.log("[BCM] Document Loaded");
@@ -86,6 +87,7 @@ runIfDocLoaded(() => {
         </div>
 	</div>`;
 	document.body.insertAdjacentHTML("afterbegin", dialogueHTML);
+	chatBar = document.getElementById('menu');
 
 	BCM_model = new BSN.Modal("#BCM_modal")
 	if (BCM_model) console.log("[BCM] Created Model");
@@ -143,6 +145,33 @@ function sendMessage(t) {
 }
 
 
+async function createButton(name, cb, color = "info", place = 'beforeend', text,link) {
+	/*var button = {
+		color:color,
+		place:place,
+		text:text,
+		link
+	};*/
+	var btnHTML = `
+	<span class="input-group-btn" style="touch-action: none;">
+                    <button  id="bcmacros${camelize(name)}" class="btn ${link?"btn-link p-0":"btn-lg"} btn-${color} ">
+						${text || name}
+                    </button>
+				</span>`;
+	var button
+	await runIfDocLoaded(()=>{
+		chatBar.insertAdjacentHTML(place, btnHTML);
+		button = document.getElementById(`bcmacros${camelize(name)}`);
+		button.addEventListener("click",cb);
+	})
+	console.log("Created button",button);
+	return button;
+}
+
+function removeButton(btn) {
+	chatBar.removeChild(btn);
+}
+
 
 /**
  * Save the preferences
@@ -158,6 +187,10 @@ function save() {
  */
 function reset() {
 	data = [];
+	for(let macroId in macros) {
+		console.log("removal")
+		macros[macroId].disableButton();
+	}
 	macros = [];
 	packs.custom.macros = [];
 	for (let packId in packs) {
@@ -167,8 +200,8 @@ function reset() {
 }
 
 function createSetting(macro) {
-	var settingHTML = `<input type="text" class="form-control" value='${macro.name}' disabled>
-							<button class="btn ${/*macro.button ? "btn-success" :*/ "btn-outline-secondary"}" type="button" id="bcmSetting_${macro.id}-button" data-title="Google" data-content="This system is changing to use a new API" data-toggle="popover" disabled>
+	var settingHTML = `<input type="text" class="form-control" value='${macro.name}'>
+							<button class="btn ${macro.button ? "btn-success" : "btn-outline-secondary"}" type="button" id="bcmSetting_${macro.id}-button" >
 							Toggle Button
 							</button>
 							<button class="btn ${macro.key ? "btn-success" : "btn-outline-secondary"}" type="button" id="bcmSetting_${macro.id}-key">
@@ -322,13 +355,18 @@ class Macro {
 
 		if (typeof (action) == "string") action = Function(action)
 		this.action = action;
-		this.key = key;
-		this.button = button;
+		if(key)this.bindKey(key);
+		if(button)this.enableButton(button)
 	}
 
 	getPack() {
 		if (!this.pack) return;
 		return packs[this.pack];
+	}
+
+	getButton() {
+		if (!this.button) return;
+		return this.getPack().buttons[this.button.id];
 	}
 
 	bindKey(key) {
@@ -337,11 +375,22 @@ class Macro {
 	}
 
 	enableButton(button) {
-		this.button = button;
+		if(this.button) return;
+		this.button = button = Object.assign({
+			color:"info",
+			text:this.id
+
+		},button);
+		createButton(this.id,this.action,button.color,undefined, button.text).then(button=>{
+			this.button.id = this.getPack().buttons.push(button)-1;
+
+		})
 		return this;
 	}
 	disableButton() {
+		if(!this.button) return;
 		//remove button from getPack().buttonGroup
+		this.getPack().buttons[this.button.id]
 
 		delete this.button;
 		return this;
@@ -392,6 +441,7 @@ class MacroPack {
 	recreateMacros() {
 		for (let options of this.macros) {
 			var macro = new Macro(options);
+			macro.pack = this.id;
 			if (this.id == "custom") macro.actionString = options.action.toString();
 			options.id = macros.push(macro) - 1;
 		}
@@ -417,10 +467,11 @@ var settingsMacro = me.createMacro({
 	name: "settings",
 	action: function () {
 		BCMacros.displaySettings()
-	}/*,
+	},
 	button: {
-		text: '<i class="fas fa-cog"></i>'
-	}*/
+		text: '<i class="fas fa-cog"></i>',
+		color:"primary"
+	}
 })
 
 
