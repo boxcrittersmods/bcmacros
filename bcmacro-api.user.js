@@ -25,6 +25,10 @@
 // @run-at       document-start
 // ==/UserScript==
 console.log("[BCMacros] by TumbleGamer")
+console.log = (...p) => {
+	p.unshift("[BCM]");
+	console.debug(...p)
+};
 cardboard.register("BCMACROS")
 console.log(ctrlPanel)
 /**
@@ -57,15 +61,15 @@ console.log(ctrlPanel)
  * @external KeyboardEvent
  * @see {@link hhttps://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent}
  */
-var DOC_LOADED = false;
-var chatBar;
+var btnContainer = document.createElement("div");
+btnContainer.id = "bcmButtonGroup"
 window.addEventListener("load", () => {
-	DOC_LOADED = true;
-	console.log("[BCM] Document Loaded");
+	console.log("Document Loaded");
 })
-var BCM_model;
+var BCM_modal;
+
 async function runIfDocLoaded(func) {
-	if (!DOC_LOADED) {
+	if (document.readyState=="complete") {
 		return new Promise(async (resolve, reject) => {
 			window.addEventListener("load", async () => {
 				resolve(await func());
@@ -76,8 +80,9 @@ async function runIfDocLoaded(func) {
 }
 runIfDocLoaded(() => {
 
-	//'use strict';
+	'use strict';
 	//Initialisation
+	console.log("Installing Font Awesome")
 	var fontAwesomeText = GM_getResourceText("fontAwesome");
 	GM_addStyle(fontAwesomeText);
 
@@ -88,11 +93,15 @@ runIfDocLoaded(() => {
             </div>
         </div>
 	</div>`;
-	document.body.insertAdjacentHTML("afterbegin", dialogueHTML);
-	chatBar = document.getElementById('menu');
+	console.log("Inserting Modal");
+	document.body.insertAdjacentHTML("afterbegin",dialogueHTML)
+	//document.body.insertAdjacentElement("afterbegin",modalContainer)
+	BCM_modal = new BSN.Modal("#BCM_modal")
 
-	BCM_model = new BSN.Modal("#BCM_modal")
-	if (BCM_model) console.log("[BCM] Created Model");
+	console.log("Inseting Button Container")
+	var chatBar = document.getElementById('menu');
+	chatBar.parentElement.insertAdjacentElement("afterend",btnContainer);
+
 })
 
 
@@ -133,8 +142,8 @@ function createDialogue(
 	<div class="modal-body">${body}</div>
 	<div class="modal-footer">${footer}</div>`
 
-	BCM_model.setContent(content);
-	BCM_model.show();
+	BCM_modal.setContent(content);
+	BCM_modal.show();
 }
 
 
@@ -147,39 +156,60 @@ function sendMessage(t) {
 }
 
 
-async function createButton(name, cb, color = "info", place = 'beforeend', text,link) {
-	/*var button = {
-		color:color,
-		place:place,
-		text:text,
-		link
-	};*/
-	var btnHTML = `
-	<span class="input-group-btn" style="touch-action: none;">
-                    <button  id="bcmacros${camelize(name)}" class="btn ${link?"btn-link p-0":"btn-lg"} btn-${color} ">
-						${text || name}
-                    </button>
-				</span>`;
-	var button
-	await runIfDocLoaded(()=>{
-		chatBar.insertAdjacentHTML(place, btnHTML);
-		button = document.getElementById(`bcmacros${camelize(name)}`);
-		button.addEventListener("click",cb);
-	})
-	return button.parentElement;
+/**
+ * @interface btnAPIButton
+ * @property {String} text
+ * @property {String} type
+ * @property {String} size
+ * 
+ */
+
+var btnTools = {
+	createButton:function ({text, color = "info",size}) {
+		var buttonParent = document.createElement("span")
+		buttonParent.classList.add("input-group-btn");
+		buttonParent.style.touchAction="none";
+		var btn = document.createElement("button");
+		btn.classList.add("btn");
+		if(size) btn.classList.add("btn-"+size);
+		if(color) btn.classList.add("btn-"+color);
+		btn.innerHTML = text;
+		buttonParent.appendChild(btn);
+		btnContainer.appendChild(buttonParent)
+		return buttonParent;
+	},
+
+	removeButton:function (btn) {
+		btnContainer.removeChild(btn);
+	}
+}
+
+function addButton(options) {
+	var {location,text,color,size} = options
+	if(ctrlPanel.addButton) {
+		if(document.body.contains(btnContainer)){
+			console.log("Moving buttons to Button API")
+			btnContainer.remove();
+			regenerateButtons()
+		}
+		console.log("Creating Button with Button API",options)
+		return ctrlPanel.addButton(location,text,color,size);		
+	} else {
+		console.log("Creating Button with built-in function",options)
+		return btnTools.createButton(options);
+	}
 }
 
 function removeButton(btn) {
-	chatBar.removeChild(btn);
+	btn.remove();
 }
-
 
 /**
  * Save the preferences
  */
 function save() {
 	GM_setValue("macros", macros)
-	console.log("[BCM] Macros Saved.");
+	console.log("Macros Saved.");
 	RefreshSettings("Settings have been saved");
 }
 
@@ -236,7 +266,7 @@ function createSetting(macro) {
 			return;
 		}
 		binding = macro;
-		console.log("[BCM] Binding " + macro.name + "...");
+		console.log("Binding " + macro.name + "...");
 		btnKey.innerText = "Binding..";
 		btnKey.classList.remove("btn-outline-secondary");
 		btnKey.classList.add("btn-danger");
@@ -293,7 +323,7 @@ function isSettingsOpen() {
  * Brings up the settings window
  */
 function displaySettings(notice) {
-	runIfDocLoaded(() => {
+	//runIfDocLoaded(() => {
 		//Open Window with dropdown and stuff
 		var settingHTML = `
 		<h2>Macros</h2>
@@ -335,23 +365,37 @@ function displaySettings(notice) {
 			reset();
 		})
 		RefreshSettings(notice);
-	})
+	//})
 }
 
 
+
+
+ 
 /**
- * @interface btnAPIButton
- * @property {String} text
- * @property {String} type
- * @property {String} size
  * 
  */
+function regenerateButtons() {
+	for(let packId in packs) {
+		var pack = packs[packId]
+		for(let button of pack.buttons) {
+			removeButton(button);
+		}
+	}
+	for(let macro of macros) {
+		var btnOptions = macro.button;
+		if(!btnOptions) continue;
+		delete macro.button;
+		macro.enableButton(btnOptions);
+	}
+}
 
 
 class Macro {
-	constructor({ name, action, key, button }) {
+	constructor({ name,pack, action, key, button }) {
 		this.id = camelize(name);
 		this.name = name;
+		this.pack = pack;
 
 		if (typeof (action) == "string") action = Function(action)
 		this.action = action;
@@ -374,29 +418,30 @@ class Macro {
 		return this;
 	}
 
-	enableButton(button) {
+	enableButton(options) {
 		if(this.button) return;
-		button = Object.assign({
+		options = Object.assign({
 			location:"bottom",
 			text:this.id,
-			color:"outline-info",
+			color:"info",
 			size:"md"
-		},button);
-		var buttonElement = ctrlPanel.addButton(
-			button.location,
-			button.text,
-			button.color,
-			button.size
-		)
-		button.id = this.getPack().buttons.push(buttonElement)-1;
-		this.button = button;
+		},options);
+		var buttonElement = addButton(options)
+		if(buttonElement.tagName=="BTN") {
+			buttonElement.addEventListener("click",this.action);
+		} else  {
+			let btn = buttonElement.querySelector("button")
+			btn.addEventListener("click",this.action);
+		}
+		options.id = this.getPack().buttons.push(buttonElement)-1;
+		this.button = options;
 		return this;
 	}
 	disableButton() {
 		if(!this.button) return;
 		var pack = this.getPack();
 		var button = pack.buttons[this.button.id];
-		ctrlPanel.removeButton(button);
+		removeButton(button);
 		pack.buttons = pack.buttons.splice(this.button.id,1);
 		delete this.button;
 		return this;
@@ -416,14 +461,9 @@ class Macro {
  * MacroPack
  */
 class MacroPack {
-	constructor({ name/*,btnGroupOptions*/ }) {
+	constructor({ name }) {
 		this.id = camelize(name);
 		this.name = name;
-		/*btnGroupOptions = Object.assign({
-			location:"bottom",
-			size:"md"
-		},btnGroupOptions)
-		this.btnGroup = ctrlPanel.addButtonGroup(btnGroupOptions.location,btnGroupOptions.size);*/
 		this.macros = [];
 		this.buttons = [];
 	}
@@ -433,8 +473,8 @@ class MacroPack {
 	 * @param {BCMacroData} options 
 	 */
 	createMacro(options) {
+		options.pack = this.id;
 		var macro = new Macro(options);
-		macro.pack = this.id;
 		if (this.id == "custom") macro.actionString = options.action.toString();
 		options.id = macros.push(macro) - 1;
 		if (!this.macros.find(o => o.io == options.id)) this.macros.push(options);
@@ -443,7 +483,7 @@ class MacroPack {
 		var preferences = data.find(d => d.pack == this.id && d.id == macro.id)
 		if (preferences) {
 			if (preferences.key) macro.bindKey(preferences.key);
-			if (preferences.button) macro.enableButton(preferences.button);
+			if (preferences.button!=macro.getButton()) macro.enableButton(preferences.button);
 		}
 		return macro;
 	}
@@ -475,8 +515,8 @@ var me = createMacroPack("BCMacros")
 //<i class="fas fa-cog"></i>
 var settingsMacro = me.createMacro({
 	name: "settings",
-	action: function () {
-		BCMacros.displaySettings()
+	action: _=> {
+		displaySettings()
 	},
 	button: {
 		text: '<i class="fas fa-cog"></i>',
@@ -499,7 +539,8 @@ var BCMacros = {
 	displaySettings,
 	sendMessage,
 	save,
-	reset
+	reset,
+	btnContainer
 }
 
 if (settingsMacro.inaccessible()) {
@@ -530,7 +571,7 @@ runIfDocLoaded(
 			if (isSettingsOpen()) {
 				document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.add("bg-success","text-white")
 			} else {
-				console.log("[BCM] Triggering", macro.name, "by key...");
+				console.log("Triggering", macro.name, "by key...");
 				macro.action();
 			}
 
