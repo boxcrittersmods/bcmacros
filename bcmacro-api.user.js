@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.6.5.83
+// @version      0.6.6.84
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
-// @require      https://github.com/tumble1999/bootstrap.native/raw/master/dist/boostrap-native-model.umd.min.js
+// @require      https://github.com/tumble1999/bootstrap.native/raw/master/dist/boostrap-native-model.umd.js
 // @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
@@ -29,6 +29,7 @@ console.log = (...p) => {
 	p.unshift("[BCM]");
 	console.debug(...p)
 };
+
 cardboard.register("BCMACROS")
 console.log(ctrlPanel)
 /**
@@ -69,7 +70,7 @@ window.addEventListener("load", () => {
 var BCM_modal;
 
 async function runIfDocLoaded(func) {
-	if (document.readyState=="complete") {
+	if (document.readyState == "complete") {
 		return new Promise(async (resolve, reject) => {
 			window.addEventListener("load", async () => {
 				resolve(await func());
@@ -94,13 +95,13 @@ runIfDocLoaded(() => {
         </div>
 	</div>`;
 	console.log("Inserting Modal");
-	document.body.insertAdjacentHTML("afterbegin",dialogueHTML)
+	document.body.insertAdjacentHTML("afterbegin", dialogueHTML)
 	//document.body.insertAdjacentElement("afterbegin",modalContainer)
 	BCM_modal = new BSN.Modal("#BCM_modal")
 
 	console.log("Inseting Button Container")
 	var chatBar = document.getElementById('menu');
-	chatBar.parentElement.insertAdjacentElement("afterend",btnContainer);
+	chatBar.parentElement.insertAdjacentElement("afterend", btnContainer);
 
 })
 
@@ -165,42 +166,64 @@ function sendMessage(t) {
  */
 
 var btnTools = {
-	createButton:function ({text, color = "info",size}) {
+	createButton: function ({ text, color = "info", size }) {
 		var buttonParent = document.createElement("span")
 		buttonParent.classList.add("input-group-btn");
-		buttonParent.style.touchAction="none";
+		buttonParent.style.touchAction = "none";
 		var btn = document.createElement("button");
 		btn.classList.add("btn");
-		if(size) btn.classList.add("btn-"+size);
-		if(color) btn.classList.add("btn-"+color);
+		if (size) btn.classList.add("btn-" + size);
+		if (color) btn.classList.add("btn-" + color);
 		btn.innerHTML = text;
 		buttonParent.appendChild(btn);
 		btnContainer.appendChild(buttonParent)
 		return buttonParent;
 	},
 
-	removeButton:function (btn) {
+	removeButton: function (btn) {
 		btnContainer.removeChild(btn);
 	}
 }
 
+var btnContainerUsed = false;
 function addButton(options) {
-	var {location,text,color,size} = options
-	if(ctrlPanel.addButton) {
-		if(document.body.contains(btnContainer)){
-			console.log("Moving buttons to Button API")
-			btnContainer.remove();
-			regenerateButtons()
+	var { location, text, color, size } = options
+	if (ctrlPanel.addButton) {
+		console.log("Creating Button with Button API", options)
+		var btn = ctrlPanel.addButton(text, color, location, size);
+		if (!btn) {
+			console.log("There was a error using the button api, switching over to using the built in function");
+			runIfDocLoaded(_ => {
+				setTimeout(() => {
+					console.log("Clearing button api buttons");
+					var btns = document.querySelectorAll(".btn-toolbar");
+					for (let btn of btns) {
+						btn.remove();
+					}
+				}, 1000)
+			});
+			delete ctrlPanel.addButton;
+			return addButton(options);
+		} else {
+			removeButton(btn);
+			if (document.body.contains(btnContainer)) {
+				btnContainer.remove();
+				if (btnContainerUsed) {
+					console.log("Moving buttons to Button API")
+					regenerateButtons()
+				}
+			}
 		}
-		console.log("Creating Button with Button API",options)
-		return ctrlPanel.addButton(location,text,color,size);		
+		return btn;
 	} else {
-		console.log("Creating Button with built-in function",options)
+		console.log("Creating Button with built-in function", options)
+		btnContainerUsed = true;
 		return btnTools.createButton(options);
 	}
 }
 
 function removeButton(btn) {
+	console.log("Removing button", btn)
 	btn.remove();
 }
 
@@ -218,7 +241,7 @@ function save() {
  */
 function reset() {
 	data = [];
-	for(let macroId in macros) {
+	for (let macroId in macros) {
 		macros[macroId].disableButton();
 	}
 	macros = [];
@@ -315,8 +338,8 @@ function RefreshSettings(notice) {
 
 function isSettingsOpen() {
 	var settings = document.getElementById("BCM_modal");
-	if(!settings) return;
-	return  window.getComputedStyle(settings).display !== "none";
+	if (!settings) return;
+	return window.getComputedStyle(settings).display !== "none";
 }
 
 /**
@@ -324,8 +347,8 @@ function isSettingsOpen() {
  */
 function displaySettings(notice) {
 	//runIfDocLoaded(() => {
-		//Open Window with dropdown and stuff
-		var settingHTML = `
+	//Open Window with dropdown and stuff
+	var settingHTML = `
 		<h2>Macros</h2>
 		<div id="bcmSettingCreate" class="card card-body">
 			<div class="input-group">
@@ -337,54 +360,54 @@ function displaySettings(notice) {
 		</div>
 		<div id="bcm_settingList" class="card-group-vertical"></div>
 	`;
-		createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
-		var newNameField = document.getElementById("bcmSettingName")
-		var newContentField = document.getElementById("bcmSettingContent")
-		var settingJSField = document.getElementById("bcmSettingJS")
-		var settingChatField = document.getElementById("bcmSettingChat")
-		var settingSave = document.getElementById("bcmSettingSave");
-		var settingReset = document.getElementById("bcmSettingReset");
+	createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
+	var newNameField = document.getElementById("bcmSettingName")
+	var newContentField = document.getElementById("bcmSettingContent")
+	var settingJSField = document.getElementById("bcmSettingJS")
+	var settingChatField = document.getElementById("bcmSettingChat")
+	var settingSave = document.getElementById("bcmSettingSave");
+	var settingReset = document.getElementById("bcmSettingReset");
 
 
-		settingJSField.addEventListener("click", _ => {
-			var name = newNameField.value;
-			var action = newContentField.value;
-			customMacros.createMacro({ name, action })
-			RefreshSettings("There are unsaved changes");
-		})
-		settingChatField.addEventListener("click", _ => {
-			var name = newNameField.value;
-			var action = "BCMacros.sendMessage(" + JSON.stringify(newContentField.value) + ")";
-			customMacros.createMacro({ name, action })
-			RefreshSettings("There are unsaved changes");
-		})
-		settingSave.addEventListener("click", _ => {
-			save();
-		})
-		settingReset.addEventListener("click", _ => {
-			reset();
-		})
-		RefreshSettings(notice);
+	settingJSField.addEventListener("click", _ => {
+		var name = newNameField.value;
+		var action = newContentField.value;
+		customMacros.createMacro({ name, action })
+		RefreshSettings("There are unsaved changes");
+	})
+	settingChatField.addEventListener("click", _ => {
+		var name = newNameField.value;
+		var action = "BCMacros.sendMessage(" + JSON.stringify(newContentField.value) + ")";
+		customMacros.createMacro({ name, action })
+		RefreshSettings("There are unsaved changes");
+	})
+	settingSave.addEventListener("click", _ => {
+		save();
+	})
+	settingReset.addEventListener("click", _ => {
+		reset();
+	})
+	RefreshSettings(notice);
 	//})
 }
 
 
 
 
- 
+
 /**
  * 
  */
 function regenerateButtons() {
-	for(let packId in packs) {
+	for (let packId in packs) {
 		var pack = packs[packId]
-		for(let button of pack.buttons) {
+		for (let button of pack.buttons) {
 			removeButton(button);
 		}
 	}
-	for(let macro of macros) {
+	for (let macro of macros) {
 		var btnOptions = macro.button;
-		if(!btnOptions) continue;
+		if (!btnOptions) continue;
 		delete macro.button;
 		macro.enableButton(btnOptions);
 	}
@@ -392,15 +415,15 @@ function regenerateButtons() {
 
 
 class Macro {
-	constructor({ name,pack, action, key, button }) {
+	constructor({ name, pack, action, key, button }) {
 		this.id = camelize(name);
 		this.name = name;
 		this.pack = pack;
 
 		if (typeof (action) == "string") action = Function(action)
 		this.action = action;
-		if(key)this.bindKey(key);
-		if(button)this.enableButton(button)
+		if (key) this.bindKey(key);
+		if (button) this.enableButton(button)
 	}
 
 	getPack() {
@@ -419,30 +442,34 @@ class Macro {
 	}
 
 	enableButton(options) {
-		if(this.button) return;
+		if (this.button) return;
 		options = Object.assign({
-			location:"bottom",
-			text:this.id,
-			color:"info",
-			size:"md"
-		},options);
+			location: "bottom",
+			text: this.id,
+			color: "info",
+			size: "md"
+		}, options);
 		var buttonElement = addButton(options)
-		if(buttonElement.tagName=="BTN") {
-			buttonElement.addEventListener("click",this.action);
-		} else  {
-			let btn = buttonElement.querySelector("button")
-			btn.addEventListener("click",this.action);
+		if (!buttonElement) {
+			console.log("There was an error creating button", options);
+			return this;
 		}
-		options.id = this.getPack().buttons.push(buttonElement)-1;
+		if (buttonElement.tagName == "BTN") {
+			buttonElement.addEventListener("click", this.action);
+		} else {
+			let btn = buttonElement.querySelector("button")
+			btn.addEventListener("click", this.action);
+		}
+		options.id = this.getPack().buttons.push(buttonElement) - 1;
 		this.button = options;
 		return this;
 	}
 	disableButton() {
-		if(!this.button) return;
+		if (!this.button) return;
 		var pack = this.getPack();
 		var button = pack.buttons[this.button.id];
 		removeButton(button);
-		pack.buttons = pack.buttons.splice(this.button.id,1);
+		pack.buttons = pack.buttons.splice(this.button.id, 1);
 		delete this.button;
 		return this;
 	}
@@ -482,8 +509,18 @@ class MacroPack {
 		//load prreferences
 		var preferences = data.find(d => d.pack == this.id && d.id == macro.id)
 		if (preferences) {
-			if (preferences.key) macro.bindKey(preferences.key);
-			if (preferences.button!=macro.getButton()) macro.enableButton(preferences.button);
+			var testToChange = { id: preferences.id, name: options.name, pack: preferences.pack }
+			if (macro.button) testToChange.button = macro.button;
+			if (macro.key) testToChange.key = macro.key;
+			if (JSON.stringify(preferences) != JSON.stringify(testToChange)) {
+				console.log("Loading Preferences for macro " + macro.id)
+				if (preferences.key) macro.bindKey(preferences.key);
+				if (preferences.button) {
+					macro.enableButton(preferences.button);
+				} else {
+					macro.disableButton();
+				}
+			}
 		}
 		return macro;
 	}
@@ -515,12 +552,12 @@ var me = createMacroPack("BCMacros")
 //<i class="fas fa-cog"></i>
 var settingsMacro = me.createMacro({
 	name: "settings",
-	action: _=> {
+	action: _ => {
 		displaySettings()
 	},
 	button: {
 		text: '<i class="fas fa-cog"></i>',
-		color:"primary"
+		color: "primary"
 	}
 })
 
@@ -569,7 +606,7 @@ runIfDocLoaded(
 			var macro = macros.find(a => a.key == e.key)
 			if (!macro) return;
 			if (isSettingsOpen()) {
-				document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.add("bg-success","text-white")
+				document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.add("bg-success", "text-white")
 			} else {
 				console.log("Triggering", macro.name, "by key...");
 				macro.action();
@@ -583,7 +620,7 @@ document.addEventListener("keyup", function (e) {
 	var macro = macros.find(a => a.key == e.key)
 	if (!macro) return;
 	if (isSettingsOpen()) {
-		document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.remove("bg-success","text-white")
+		document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.remove("bg-success", "text-white")
 	}
 
 }, false);
