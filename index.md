@@ -33,9 +33,32 @@ Go on to the [BoxCritters Website](https://boxcritters.com) and click the the âš
 
 When making macros for your mod, enable the mod flag in the constructor so it gets deleted each refresh. After setting up your default settings, run `setupMod()` on your macro to apply the user settings.
 
-### Examples
+### Usage
 
-View some simple usage examples [here](https://github.com/boxcritters/bcmacroapi/tree/master/test).
+#### In Mods
+```js
+var myMacroPack = BCMacros.createMacroPack("Pack Name");
+myMacroPack.createMacro({
+    name:"Macro 1",
+    action:function() {
+        console.log("Hello World")
+    },
+    button:{}
+})
+
+myMacroPack.createMacro({
+    name:"Macro 2",
+    action:function() {
+        console.log("Hello World")
+    },
+    key:"p"
+})
+```
+
+### Docuementation
+
+All documentation lives [here](https://docs.boxcrittersmods.ga/BCMacroAPI/)
+
 
 ## Licensing
 

@@ -45,13 +45,6 @@
 			</li>
 			
 			<li class="dropdown">
-				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
-				<ul class="dropdown-menu ">
-					<li><a href="global.html#createMacroPack">createMacroPack</a></li><li><a href="global.html#displaySettings">displaySettings</a></li><li><a href="global.html#macros">macros</a></li><li><a href="global.html#packs">packs</a></li><li><a href="global.html#regenerateButtons">regenerateButtons</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#save">save</a></li><li><a href="global.html#sendMessage">sendMessage</a></li>
-				</ul>
-			</li>
-			
-			<li class="dropdown">
 				<a href="externals.list.html" class="dropdown-toggle" data-toggle="dropdown">Externals<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
 					<li><a href="external-KeyboardEvent.html">KeyboardEvent</a></li>
@@ -120,8 +113,27 @@
 <p>Go on to the <a href="https://boxcritters.com">BoxCritters Website</a> and click the the ⚙️Settings button.</p>
 <h3>Mod Development</h3>
 <p>When making macros for your mod, enable the mod flag in the constructor so it gets deleted each refresh. After setting up your default settings, run <code>setupMod()</code> on your macro to apply the user settings.</p>
-<h3>Examples</h3>
-<p>View some simple usage examples <a href="https://github.com/boxcritters/bcmacroapi/tree/master/test">here</a>.</p>
+<h3>Usage</h3>
+<h4>In Mods</h4>
+<pre class="prettyprint source lang-js"><code>var myMacroPack = BCMacros.createMacroPack(&quot;Pack Name&quot;);
+myMacroPack.createMacro({
+    name:&quot;Macro 1&quot;,
+    action:function() {
+        console.log(&quot;Hello World&quot;)
+    },
+    button:{}
+})
+
+myMacroPack.createMacro({
+    name:&quot;Macro 2&quot;,
+    action:function() {
+        console.log(&quot;Hello World&quot;)
+    },
+    key:&quot;p&quot;
+})
+</code></pre>
+<h3>Docuementation</h3>
+<p>All documentation lives <a href="https://docs.boxcrittersmods.ga/BCMacroAPI/">here</a></p>
 <h2>Licensing</h2>
 <p>All the code of this project is licensed under the <a href="https://github.com/boxcritters/bcmacroapi/blob/master/LICENSE">Apache License version 2.0</a> (Apache-2.0).</p>
 <pre class="prettyprint source lang-license"><code>	Copyright 2020 TumbleGamer &lt;tumblegamer@gmail.com>
