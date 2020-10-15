@@ -10,6 +10,8 @@
 // @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
 // @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
 // @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
+// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
+// @require      https://github.com/tumble1999/native-modals/raw/master/native-modal.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -24,14 +26,20 @@
 // @updateURL    https://github.com/boxcritters/BCMacroAPI/raw/master/bcmacro-api.user.js
 // @run-at       document-start
 // ==/UserScript==
-console.log("[BCMacros] by TumbleGamer")
-console.log = (...p) => {
+/*mod.log("[BCMacros] by TumbleGamer")
+mod.log = (...p) => {
 	p.unshift("[BCM]");
 	console.debug(...p)
 };
 
 cardboard.register("BCMACROS")
-console.log(ctrlPanel)
+mod.log(ctrlPanel)*/
+var mod = BCModUtils.InitialiseMod({
+	name:"BCMacros",
+	abriv:"BCM",
+	author:"TumbleGamer"
+})
+mod.modal = new BSModel();
 /**
  * bcmacro-api.user.js
  * 
@@ -65,9 +73,10 @@ console.log(ctrlPanel)
 var btnContainer = document.createElement("div");
 btnContainer.id = "bcmButtonGroup"
 window.addEventListener("load", () => {
-	console.log("Document Loaded");
+	mod.log("Document Loaded");
 })
-var BCM_modal;
+
+//var BCM_modal;
 
 async function runIfDocLoaded(func) {
 	if (document.readyState == "complete") {
@@ -83,23 +92,23 @@ runIfDocLoaded(() => {
 
 	'use strict';
 	//Initialisation
-	console.log("Installing Font Awesome")
+	mod.log("Installing Font Awesome")
 	var fontAwesomeText = GM_getResourceText("fontAwesome");
 	GM_addStyle(fontAwesomeText);
 
 	//Setup Dialog
-	let dialogueHTML = `<div id="BCM_modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+	/*let dialogueHTML = `<div id="BCM_modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
             </div>
         </div>
 	</div>`;
-	console.log("Inserting Modal");
+	mod.log("Inserting Modal");
 	document.body.insertAdjacentHTML("afterbegin", dialogueHTML)
 	//document.body.insertAdjacentElement("afterbegin",modalContainer)
-	BCM_modal = new BSN.Modal("#BCM_modal")
+	BCM_modal = new BSN.Modal("#BCM_modal")*/
 
-	console.log("Inseting Button Container")
+	mod.log("Inseting Button Container")
 	var chatBar = document.getElementById('menu');
 	chatBar.parentElement.insertAdjacentElement("afterend", btnContainer);
 
@@ -189,13 +198,13 @@ var btnContainerUsed = false;
 function addButton(options) {
 	var { location, text, color, size } = options
 	if (ctrlPanel.addButton) {
-		console.log("Creating Button with Button API", options)
+		mod.log("Creating Button with Button API", options)
 		var btn = ctrlPanel.addButton(text, color, location, size);
 		if (!btn) {
-			console.log("There was a error using the button api, switching over to using the built in function");
+			mod.log("There was a error using the button api, switching over to using the built in function");
 			runIfDocLoaded(_ => {
 				setTimeout(() => {
-					console.log("Clearing button api buttons");
+					mod.log("Clearing button api buttons");
 					var btns = document.querySelectorAll(".btn-toolbar");
 					for (let btn of btns) {
 						btn.remove();
@@ -209,21 +218,21 @@ function addButton(options) {
 			if (document.body.contains(btnContainer)) {
 				btnContainer.remove();
 				if (btnContainerUsed) {
-					console.log("Moving buttons to Button API")
+					mod.log("Moving buttons to Button API")
 					regenerateButtons()
 				}
 			}
 		}
 		return btn;
 	} else {
-		console.log("Creating Button with built-in function", options)
+		mod.log("Creating Button with built-in function", options)
 		btnContainerUsed = true;
 		return btnTools.createButton(options);
 	}
 }
 
 function removeButton(btn) {
-	console.log("Removing button", btn)
+	mod.log("Removing button", btn)
 	btn.remove();
 }
 
@@ -232,7 +241,7 @@ function removeButton(btn) {
  */
 function save() {
 	GM_setValue("macros", macros)
-	console.log("Macros Saved.");
+	mod.log("Macros Saved.");
 	RefreshSettings("Settings have been saved");
 }
 
@@ -285,11 +294,11 @@ function createSetting(macro) {
 			btnKey.classList.remove("btn-danger");
 			btnKey.classList.add("btn-outline-secondary");
 			btnKey.innerText = "Bind key";
-			console.log("[BCM] Binding Canceled for" + macro.name);
+			mod.log("[BCM] Binding Canceled for" + macro.name);
 			return;
 		}
 		binding = macro;
-		console.log("Binding " + macro.name + "...");
+		mod.log("Binding " + macro.name + "...");
 		btnKey.innerText = "Binding..";
 		btnKey.classList.remove("btn-outline-secondary");
 		btnKey.classList.add("btn-danger");
@@ -337,7 +346,8 @@ function RefreshSettings(notice) {
 
 
 function isSettingsOpen() {
-	var settings = document.getElementById("BCM_modal");
+	return  mod.modal.showing();
+	var settings = mod.modal.modal;
 	if (!settings) return;
 	return window.getComputedStyle(settings).display !== "none";
 }
@@ -349,7 +359,6 @@ function displaySettings(notice) {
 	//runIfDocLoaded(() => {
 	//Open Window with dropdown and stuff
 	var settingHTML = `
-		<h2>Macros</h2>
 		<div id="bcmSettingCreate" class="card card-body">
 			<div class="input-group">
 				<input type="text" id="bcmSettingName" class="form-control" placeholder="New Macro...">
@@ -360,7 +369,12 @@ function displaySettings(notice) {
 		</div>
 		<div id="bcm_settingList" class="card-group-vertical"></div>
 	`;
-	createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
+	mod.modal.setContent({
+		header:"<h2>Macros</h2>" + BSModel.closeButton,
+		body:settingHTML,
+		footer:'<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>'
+	})
+	//createDialogue("Macro Settings", settingHTML, '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave">Save</button>');
 	var newNameField = document.getElementById("bcmSettingName")
 	var newContentField = document.getElementById("bcmSettingContent")
 	var settingJSField = document.getElementById("bcmSettingJS")
@@ -451,7 +465,7 @@ class Macro {
 		}, options);
 		var buttonElement = addButton(options)
 		if (!buttonElement) {
-			console.log("There was an error creating button", options);
+			mod.log("There was an error creating button", options);
 			return this;
 		}
 		if (buttonElement.tagName == "BTN") {
@@ -513,7 +527,7 @@ class MacroPack {
 			if (macro.button) testToChange.button = macro.button;
 			if (macro.key) testToChange.key = macro.key;
 			if (JSON.stringify(preferences) != JSON.stringify(testToChange)) {
-				console.log("Loading Preferences for macro " + macro.id)
+				mod.log("Loading Preferences for macro " + macro.id)
 				if (preferences.key) macro.bindKey(preferences.key);
 				if (preferences.button) {
 					macro.enableButton(preferences.button);
@@ -568,6 +582,7 @@ var customMacros = createMacroPack("Custom");
 
 
 var BCMacros = {
+	mod,
 	packs,
 	macros,
 	createMacroPack,
@@ -608,7 +623,7 @@ runIfDocLoaded(
 			if (isSettingsOpen()) {
 				document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.add("bg-success", "text-white")
 			} else {
-				console.log("Triggering", macro.name, "by key...");
+				mod.log("Triggering", macro.name, "by key...");
 				macro.action();
 			}
 
