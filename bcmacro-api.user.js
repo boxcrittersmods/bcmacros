@@ -50,14 +50,6 @@
  */
 (function () {
 	'use strict';
-	/*mod.log("[BCMacros] by TumbleGamer")
-	mod.log = (...p) => {
-		p.unshift("[BCM]");
-		console.debug(...p)
-	};
-	
-	cardboard.register("BCMACROS")
-	mod.log(ctrlPanel)*/
 	var mod = BCModUtils.InitialiseMod({
 		name: "BCMacros",
 		abriv: "BCM",
@@ -114,21 +106,6 @@
 			return index === 0 ? match.toLowerCase() : match.toUpperCase();
 		});
 	}
-
-	/*function createDialogue(
-		header = `<button type="button" class="close" data-dismiss="BCM_modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>`,
-		body,
-		footer
-	) {
-		var content = `
-		<div class="modal-header">${header}</div>
-		<div class="modal-body">${body}</div>
-		<div class="modal-footer">${footer}</div>`
-	
-		BCM_modal.setContent(content);
-		BCM_modal.show();
-	}*/
-
 
 	/**
 	 * This function exists in case the send message function changes again
@@ -574,17 +551,6 @@
 		mod.log("Installing Font Awesome")
 		var fontAwesomeText = GM_getResourceText("fontAwesome");
 		GM_addStyle(fontAwesomeText);
-
-		//Setup Dialog
-		/*let dialogueHTML = `<div id="BCM_modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-				</div>
-			</div>
-		</div>`;
-		document.body.insertAdjacentHTML("afterbegin", dialogueHTML)
-		//document.body.insertAdjacentElement("afterbegin",modalContainer)
-		BCM_modal = new BSN.Modal("#BCM_modal")*/
 
 		mod.log("Inseting Button Container")
 		var chatBar = document.getElementById('menu');
