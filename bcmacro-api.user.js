@@ -1,12 +1,15 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.6.10.92
+// @version      0.6.11.93
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
 // @require      https://github.com/tumble1999/native-modals/raw/master/native-modal.js
+// @require      https://github.com/SArpnt/joinFunction/raw/master/script.js
+// @require      https://github.com/SArpnt/EventHandler/raw/master/script.js
+// @require      https://github.com/SArpnt/cardboard/raw/master/script.user.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -50,6 +53,13 @@
  */
 (function () {
 	'use strict';
+	window = unsafeWindow || window;
+	var btnContainer = document.createElement("div");
+	btnContainer.id = "bcmButtonGroup"
+	window.addEventListener("load", () => {
+	})
+	var packs = {};
+	var macros = []
 	var BCMacros = new TumbleMod({
 		name: "BCMacros",
 		abriv: "BCM",
@@ -58,13 +68,13 @@
 		macros,
 		createMacroPack,
 		CreateMacroPack: createMacroPack,
-		createMacro: customMacros.createMacro,
 		displaySettings,
 		sendMessage,
 		save,
 		reset,
 		btnContainer
 	})
+	BCMacros.register()
 
 	BCMacros.log("Inserting Modal");
 	BCMacros.modal = new BSModal();
@@ -87,13 +97,6 @@
 	 * @external KeyboardEvent
 	 * @see {@link hhttps://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent}
 	 */
-	var btnContainer = document.createElement("div");
-	btnContainer.id = "bcmButtonGroup"
-	window.addEventListener("load", () => {
-	})
-	//var BCM_modal;
-
-	window = unsafeWindow || window;
 	var binding = undefined;
 	var data = GM_getValue("macros") || [];
 
@@ -101,14 +104,6 @@
 	if (GM_getValue("BCMacros_macros")) {
 		Object.assign(data, GM_getValue("BCMacros_macros"));
 	}
-	/**
-	 * {string,MacroPack}
-	 */
-	var packs = {};
-	/**
-	 * Array.<MacroPack>
-	 */
-	var macros = []
 	/**
 	 * This function exists in case the send message function changes again
 	 * @param {String} t Message to be sent
@@ -366,7 +361,7 @@
 
 	class Macro {
 		constructor({ name, pack, action, key, button }) {
-			this.id = camelize(name);
+			this.id = TumbleMod.camelize(name);
 			this.name = name;
 			this.pack = pack;
 
@@ -445,7 +440,7 @@
 	 */
 	class MacroPack {
 		constructor({ name }) {
-			this.id = camelize(name);
+			this.id = TumbleMod.camelize(name);
 			this.name = name;
 			this.macros = [];
 			this.buttons = [];
@@ -529,6 +524,7 @@
 			action: options.actionString
 		})
 	}
+	BCMacros.createMacro = customMacros.createMacro;
 
 	// Runs on page load
 	TumbleMod.onDocumentLoaded().then(_ => {
