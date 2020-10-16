@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.6.9.91
+// @version      0.6.10.92
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
@@ -50,15 +50,25 @@
  */
 (function () {
 	'use strict';
-	var mod = BCModUtils.InitialiseMod({
+	var BCMacros = new TumbleMod({
 		name: "BCMacros",
 		abriv: "BCM",
-		author: "TumbleGamer"
+		author: "TumbleGamer",
+		packs,
+		macros,
+		createMacroPack,
+		CreateMacroPack: createMacroPack,
+		createMacro: customMacros.createMacro,
+		displaySettings,
+		sendMessage,
+		save,
+		reset,
+		btnContainer
 	})
 
-	mod.log("Inserting Modal");
-	mod.modal = new BSModal();
-	mod.modal.setContent({
+	BCMacros.log("Inserting Modal");
+	BCMacros.modal = new BSModal();
+	BCMacros.modal.setContent({
 		header: "Macro Settings" + BSModal.closeButton,
 		body: `
 <h2>Macros</h2>
@@ -99,14 +109,6 @@
 	 * Array.<MacroPack>
 	 */
 	var macros = []
-
-	function camelize(str) {
-		return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
-			if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
-			return index === 0 ? match.toLowerCase() : match.toUpperCase();
-		});
-	}
-
 	/**
 	 * This function exists in case the send message function changes again
 	 * @param {String} t Message to be sent
@@ -148,13 +150,13 @@
 	function addButton(options) {
 		var { location, text, color, size } = options
 		if (typeof (ctrlPanel) !== "undefined" && ctrlPanel.addButton) {
-			mod.log("Creating Button with Button API", options)
+			BCMacros.log("Creating Button with Button API", options)
 			var btn = ctrlPanel.addButton(text, color, location, size);
 			if (!btn) {
-				mod.log("There was a error using the button api, switching over to using the built in function");
-				BCModUtils.onDocumentLoaded().then(_ => {
+				BCMacros.log("There was a error using the button api, switching over to using the built in function");
+				TumbleMod.onDocumentLoaded().then(_ => {
 					setTimeout(() => {
-						mod.log("Clearing button api buttons");
+						BCMacros.log("Clearing button api buttons");
 						var btns = document.querySelectorAll(".btn-toolbar");
 						for (let btn of btns) {
 							btn.remove();
@@ -168,21 +170,21 @@
 				if (document.body.contains(btnContainer)) {
 					btnContainer.remove();
 					if (btnContainerUsed) {
-						mod.log("Moving buttons to Button API")
+						BCMacros.log("Moving buttons to Button API")
 						regenerateButtons()
 					}
 				}
 			}
 			return btn;
 		} else {
-			mod.log("Creating Button with built-in function", options)
+			BCMacros.log("Creating Button with built-in function", options)
 			btnContainerUsed = true;
 			return btnTools.createButton(options);
 		}
 	}
 
 	function removeButton(btn) {
-		mod.log("Removing button", btn)
+		BCMacros.log("Removing button", btn)
 		btn.remove();
 	}
 
@@ -191,7 +193,7 @@
 	 */
 	function save() {
 		GM_setValue("macros", BCMacros.macros.filter(m => m.modified).map(m => Object.keys(m).reduce((obj, k) => (k !== "modified" ? obj[k] = m[k] : null, obj), {})))
-		mod.log("Macros Saved.");
+		BCMacros.log("Macros Saved.");
 		RefreshSettings("Settings have been saved","success");
 	}
 
@@ -241,12 +243,12 @@
 				btnKey.classList.remove("btn-danger");
 				btnKey.classList.add("btn-outline-secondary");
 				btnKey.innerText = "Bind key";
-				mod.log("[BCM] Binding Canceled for" + macro.name);
+				BCMacros.log("[BCM] Binding Canceled for" + macro.name);
 				RefreshSettings("There are unsaved changes","warning")
 				return;
 			}
 			binding = macro;
-			mod.log("Binding " + macro.name + "...");
+			BCMacros.log("Binding " + macro.name + "...");
 			btnKey.innerText = "Binding..";
 			btnKey.classList.remove("btn-outline-secondary");
 			btnKey.classList.add("btn-danger");
@@ -274,9 +276,9 @@
 		if(settingsMacro.inaccessible()) {
 			sendNotice("Please set an activation method for the settings macro.","danger")
 			document.getElementById("bcmSettingSave").disabled = true;
-			mod.modal.disableClosing()
+			BCMacros.modal.disableClosing()
 		} else {
-			mod.modal.enableClosing()
+			BCMacros.modal.enableClosing()
 			document.getElementById("bcmSettingSave").disabled = false
 		}
 
@@ -307,7 +309,7 @@
 
 
 	function isSettingsOpen() {
-		var settings = mod.modal
+		var settings = BCMacros.modal
 		if (!settings) return;
 		return window.getComputedStyle(settings.element).display !== "none";
 	}
@@ -316,7 +318,7 @@
 	 * Brings up the settings window
 	 */
 	function displaySettings(notice) {
-		mod.modal.show();
+		BCMacros.modal.show();
 		var newNameField = document.getElementById("bcmSettingName")
 		var newContentField = document.getElementById("bcmSettingContent")
 		var settingJSField = document.getElementById("bcmSettingJS")
@@ -401,7 +403,7 @@
 			}, options);
 			var buttonElement = addButton(mergedOptions)
 			if (!buttonElement) {
-				mod.log("There was an error creating button", options);
+				BCMacros.log("There was an error creating button", options);
 				return this;
 			}
 			if (buttonElement.tagName == "BTN") {
@@ -423,7 +425,7 @@
 			pack.buttons.splice(this.button.id, 1);
 			var removedID = this.button.id;
 			delete this.button;
-			macros.forEach(macro => macro.pack != this.pack || !macro.button || macro.button.id && macro.button.id > removedID && macro.button.id-- && mod.log(macro.id, macro.button, (macro.button.id + 1) + "=>" + macro.button.id))
+			macros.forEach(macro => macro.pack != this.pack || !macro.button || macro.button.id && macro.button.id > removedID && macro.button.id-- && BCMacros.log(macro.id, macro.button, (macro.button.id + 1) + "=>" + macro.button.id))
 			this.modified = true;
 			return this;
 		}
@@ -467,7 +469,7 @@
 				if (macro.button) testToChange.button = macro.button;
 				if (macro.key) testToChange.key = macro.key;
 				if (JSON.stringify(preferences) != JSON.stringify(testToChange)) {
-					mod.log("Loading Preferences for macro " + macro.id)
+					BCMacros.log("Loading Preferences for macro " + macro.id)
 					if (preferences.key) macro.bindKey(preferences.key);
 					if (preferences.button) {
 						macro.enableButton(preferences.button);
@@ -520,22 +522,6 @@
 	//Setup custom macros
 
 
-
-	var BCMacros = {
-		mod,
-		packs,
-		macros,
-		createMacroPack,
-		CreateMacroPack: createMacroPack,
-		createMacro: customMacros.createMacro,
-		displaySettings,
-		sendMessage,
-		save,
-		reset,
-		btnContainer
-	}
-
-
 	for (let options of data) {
 		if (options.pack != "custom") continue;
 		customMacros.createMacro({
@@ -545,14 +531,14 @@
 	}
 
 	// Runs on page load
-	BCModUtils.onDocumentLoaded().then(_ => {
-		mod.log("Document Loaded");
+	TumbleMod.onDocumentLoaded().then(_ => {
+		BCMacros.log("Document Loaded");
 		//Initialisation
-		mod.log("Installing Font Awesome")
+		BCMacros.log("Installing Font Awesome")
 		var fontAwesomeText = GM_getResourceText("fontAwesome");
 		GM_addStyle(fontAwesomeText);
 
-		mod.log("Inseting Button Container")
+		BCMacros.log("Inseting Button Container")
 		var chatBar = document.getElementById('menu');
 		chatBar.parentElement.insertAdjacentElement("afterend", btnContainer);
 
@@ -571,7 +557,7 @@
 			if (isSettingsOpen()) {
 				document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.add("bg-success", "text-white")
 			} else {
-				mod.log("Triggering", macro.name, "by key...");
+				BCMacros.log("Triggering", macro.name, "by key...");
 				macro.action();
 			}
 
@@ -586,10 +572,10 @@
 
 		}, false);
 	});
-	mod.modal.addEventListener("created",()=>{
-		mod.log("Modal Created")
+	BCMacros.modal.addEventListener("created",()=>{
+		BCMacros.log("Modal Created")
 
-		mod.log("Cheacking Accessibiliy of the settings")
+		BCMacros.log("Cheacking Accessibiliy of the settings")
 		if (settingsMacro.inaccessible()) {
 			displaySettings();
 		}
