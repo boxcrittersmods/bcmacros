@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.6.12.94
+// @version      0.6.13.95
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
-// @require      https://github.com/tumble1999/native-modals/raw/master/native-modal.js
+// @require      https://github.com/tumble1999/popper/raw/master/popper.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -73,9 +73,9 @@
 	})
 
 	BCMacros.log("Inserting Modal");
-	BCMacros.modal = new BSModal();
+	BCMacros.modal = new Popper();
 	BCMacros.modal.setContent({
-		header: "Macro Settings" + BSModal.closeButton,
+		header: "Macro Settings" + Popper.closeButton,
 		body: `
 <h2>Macros</h2>
 <div id="bcmSettingCreate" class="card card-body">
