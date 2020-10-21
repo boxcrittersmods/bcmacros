@@ -74,18 +74,20 @@
 	BCMacros.modal.setContent({
 		header: `Macro Settings ${Popper.closeButton}`,
 		body: `
-<h2>Macros</h2>
-<div class="card card-body bcmSettingCreate">
-	<div class="input-group">
-		<input type="text" class="form-control bcmSettingName" placeholder="New Macro...">
-		<button class="btn btn-outline-secondary bcmSettingJS" type="button">JS</button>
-		<button class="btn btn-outline-secondary bcmSettingChat" type="button">Chat</button>
-	</div>
-	<textarea type="text" class="form-control bcmSettingContent" placeholder="Action/Text"></textarea>
-</div>
-<div class="card-group-vertical bcmSettingList"></div>`,
-		footer: `<button class="btn btn-danger bcmSettingReset" type="button">Reset</button>
-		<button class="btn btn-primary bcmSettingSave" type="button" data-dismiss="modal">Save</button>`
+			<div class="card card-body bcmSettingCreate">
+				<div class="input-group">
+					<input type="text" class="form-control bcmSettingName" placeholder="New Macro...">
+					<button class="btn btn-outline-secondary bcmSettingJS" type="button">JS</button>
+					<button class="btn btn-outline-secondary bcmSettingChat" type="button">Chat</button>
+				</div>
+				<textarea type="text" class="form-control bcmSettingContent" placeholder="Action/Text"></textarea>
+			</div>
+			<div class="card-group-vertical bcmSettingList"></div>
+		`,
+		footer: `
+			<button class="btn btn-danger bcmSettingReset" type="button">Reset</button>
+			<button class="btn btn-primary bcmSettingSave" type="button" data-dismiss="modal">Save</button>
+		`,
 	});
 	{
 		let
@@ -220,21 +222,21 @@
 
 		function sendNotice(text, type = "info") {
 			let box = document.createElement("div");
-			box.classList.add("alert", "alert-" + type);
+			box.className = `mb-0 py-1 alert alert-${type}`;
 			box.setAttribute("role", "alert");
 			box.innerText = text;
-			settingGroup.appendChild(box);
+			settingGroup.append(box);
 		}
 
-		if (notice) sendNotice(notice, type);
+		if (notice) sendNotice(notice, type || "warning");
 
 		if (settingsMacro.inaccessible()) {
 			sendNotice(`Please set an activation method for the settings macro.`, "danger");
 			BCMacros.modal.element.getElementsByClassName("bcmSettingSave")[0].disabled = true;
 			BCMacros.modal.disableClosing();
 		} else {
-			BCMacros.modal.enableClosing();
 			BCMacros.modal.element.getElementsByClassName("bcmSettingSave")[0].disabled = false;
+			BCMacros.modal.enableClosing();
 		}
 
 		for (let packId in packs) {
@@ -244,18 +246,18 @@
 			let heading = document.createElement("h5");
 			heading.classList.add("card-title");
 			heading.innerText = pack.name;
-			list.appendChild(heading);
+			list.append(heading);
 			if (pack.macros.length == 0) {
 				let disclaimer = document.createElement("p");
 				disclaimer.innerText = "There are no macros in this pack";
 				if (pack.id == "custom") disclaimer.innerText = "You have created no custom macros";
-				list.appendChild(disclaimer);
+				list.append(disclaimer);
 			}
 
 			for (let packMacros of pack.macros)
-				list.appendChild(createSetting(macros[packMacros.id]));
+				list.append(createSetting(macros[packMacros.id]));
 
-			settingGroup.appendChild(list);
+			settingGroup.append(list);
 		}
 	}
 
@@ -495,8 +497,7 @@
 	});
 	BCMacros.modal.addEventListener("created", () => {
 		BCMacros.log("Modal Created");
-
-		BCMacros.log("Cheacking Accessibiliy of the settings");
+		BCMacros.log("Checking settings accessibility");
 		if (settingsMacro.inaccessible())
 			displaySettings();
 	});
