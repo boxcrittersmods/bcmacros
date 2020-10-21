@@ -7,6 +7,7 @@
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
 // @require      https://github.com/tumble1999/popper/raw/master/popper.js
+// @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -39,153 +40,113 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
  */
 /**
  * @file BCMacro API Userscript
- * @author TumbleGamer <tumblegamer@gmail.com
+ * @author TumbleGamer <tumblegamer@gmail.com>
  * @copyright 2020 TumbleGamer <tumblegamer@gmail.com>
  * @copyright 2020 The Box Critters Modding Community
- * @license Apatche-2.0
+ * @license Apache-2.0
  */
 (function () {
 	'use strict';
 	window = unsafeWindow || window;
-	var btnContainer = document.createElement("div");
-	btnContainer.id = "bcmButtonGroup"
-	window.addEventListener("load", () => {
-	})
-	var packs = {};
-	var macros = []
-	var BCMacros = new TumbleMod({
-		name: "BCMacros",
-		abriv: "BCM",
-		author: "TumbleGamer",
-		packs,
-		macros,
-		createMacroPack,
-		CreateMacroPack: createMacroPack,
-		displaySettings,
-		sendMessage,
-		save,
-		reset,
-		btnContainer
-	})
+	let btnContainer = document.createElement("div");
+	btnContainer.id = "bcmButtonGroup";
+	let packs = {},
+		macros = [],
+		BCMacros = new TumbleMod({
+			id: "BCMacros",
+			abriv: "BCM",
+			packs,
+			macros,
+			createMacroPack,
+			CreateMacroPack: createMacroPack,
+			displaySettings,
+			sendMessage,
+			save,
+			reset,
+			btnContainer
+		});
 
 	BCMacros.log("Inserting Modal");
 	BCMacros.modal = new Popper();
 	BCMacros.modal.setContent({
-		header: "Macro Settings" + Popper.closeButton,
+		header: `Macro Settings ${Popper.closeButton}`,
 		body: `
 <h2>Macros</h2>
-<div id="bcmSettingCreate" class="card card-body">
+<div class="card card-body bcmSettingCreate">
 	<div class="input-group">
-		<input type="text" id="bcmSettingName" class="form-control" placeholder="New Macro...">
-		<button class="btn btn-outline-secondary" type="button" id="bcmSettingJS">JS</button>
-		<button class="btn btn-outline-secondary" type="button" id="bcmSettingChat">Chat</button>
+		<input type="text" class="form-control bcmSettingName" placeholder="New Macro...">
+		<button class="btn btn-outline-secondary bcmSettingJS" type="button">JS</button>
+		<button class="btn btn-outline-secondary bcmSettingChat" type="button">Chat</button>
 	</div>
-	<textarea type="text" id="bcmSettingContent" class="form-control" placeholder="Action/Text"></textarea>
+	<textarea type="text" class="form-control bcmSettingContent" placeholder="Action/Text"></textarea>
 </div>
-<div id="bcm_settingList" class="card-group-vertical"></div>`,
-		footer: '<button class="btn btn-danger" type="button" id="bcmSettingReset">Reset</button><button class="btn btn-primary" type="button" id="bcmSettingSave" data-dismiss="modal"> Save</button>'
-	})
-	/**
-	 * @external KeyboardEvent
-	 * @see {@link hhttps://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent}
-	 */
-	var binding = undefined;
-	var data = GM_getValue("macros") || [];
+<div class="card-group-vertical bcmSettingList"></div>`,
+		footer: `<button class="btn btn-danger bcmSettingReset" type="button">Reset</button>
+		<button class="btn btn-primary bcmSettingSave" type="button" data-dismiss="modal">Save</button>`
+	});
+	{
+		let
+			mc = BCMacros.modal.element.getElementsByClassName("modal-content")[0],
+			newNameField = mc.getElementsByClassName("bcmSettingName")[0],
+			newContentField = mc.getElementsByClassName("bcmSettingContent")[0],
+			settingJSField = mc.getElementsByClassName("bcmSettingJS")[0],
+			settingChatField = mc.getElementsByClassName("bcmSettingChat")[0],
+			settingSave = mc.getElementsByClassName("bcmSettingSave")[0],
+			settingReset = mc.getElementsByClassName("bcmSettingReset")[0];
 
-	if (GM_getValue("BCMacros_mods")) GM_setValue("BCMacros_mods", undefined);
-	if (GM_getValue("BCMacros_macros")) {
-		Object.assign(data, GM_getValue("BCMacros_macros"));
+		settingJSField.addEventListener("click", _ => {
+			customMacros.createMacro({
+				name: newNameField.value,
+				action: newContentField.value,
+			});
+			RefreshSettings("There are unsaved changes", "warning");
+		});
+		settingChatField.addEventListener("click", _ => {
+			customMacros.createMacro({
+				name: newNameField.value,
+				action: `BCMacros.sendMessage(${JSON.stringify(newContentField.value)})`,
+			});
+			RefreshSettings("There are unsaved changes", "warning");
+		});
+		settingSave.addEventListener("click", save);
+		settingReset.addEventListener("click", reset);
 	}
+
+	let data = GM_getValue("macros") || [];
+
+	if (GM_getValue("BCMacros_mods"))
+		GM_setValue("BCMacros_mods", undefined);
+	if (GM_getValue("BCMacros_macros"))
+		Object.assign(data, GM_getValue("BCMacros_macros"));
 	/**
 	 * This function exists in case the send message function changes again
 	 * @param {String} t Message to be sent
 	 */
 	function sendMessage(t) {
-		world.message(t)
+		world.message(t);
 	}
 
-
-	/**
-	 * @interface btnAPIButton
-	 * @property {String} text
-	 * @property {String} type
-	 * @property {String} size
-	 * 
-	 */
-
-	var btnTools = {
-		createButton: function ({ text, color = "info", size }) {
-			var buttonParent = document.createElement("span")
-			buttonParent.classList.add("input-group-btn");
-			buttonParent.style.touchAction = "none";
-			var btn = document.createElement("button");
-			btn.classList.add("btn");
-			if (size) btn.classList.add("btn-" + size);
-			if (color) btn.classList.add("btn-" + color);
-			btn.innerHTML = text;
-			buttonParent.appendChild(btn);
-			btnContainer.appendChild(buttonParent)
-			return buttonParent;
-		},
-
-		removeButton: function (btn) {
-			btnContainer.removeChild(btn);
-		}
-	}
-
-	var btnContainerUsed = false;
 	function addButton(options) {
-		var { location, text, color, size } = options
-		if (typeof (ctrlPanel) !== "undefined" && ctrlPanel.addButton) {
-			BCMacros.log("Creating Button with Button API", options)
-			var btn = ctrlPanel.addButton(text, color, location, size);
-			if (!btn) {
-				BCMacros.log("There was a error using the button api, switching over to using the built in function");
-				TumbleMod.onDocumentLoaded().then(_ => {
-					setTimeout(() => {
-						BCMacros.log("Clearing button api buttons");
-						var btns = document.querySelectorAll(".btn-toolbar");
-						for (let btn of btns) {
-							btn.remove();
-						}
-					}, 1000)
-				});
-				delete ctrlPanel.addButton;
-				return addButton(options);
-			} else {
-				removeButton(btn);
-				if (document.body.contains(btnContainer)) {
-					btnContainer.remove();
-					if (btnContainerUsed) {
-						BCMacros.log("Moving buttons to Button API")
-						regenerateButtons()
-					}
-				}
-			}
-			return btn;
-		} else {
-			BCMacros.log("Creating Button with built-in function", options)
-			btnContainerUsed = true;
-			return btnTools.createButton(options);
-		}
+		BCMacros.log("Creating Button with Ctrl Panel", options);
+		let { text, color, location, size } = options;
+		return ctrlPanel.addButton(text, color, location, size);
 	}
 
 	function removeButton(btn) {
-		BCMacros.log("Removing button", btn)
-		btn.remove();
+		BCMacros.log("Removing button", btn);
+		ctrlPanel.removeButton(btn);
 	}
 
 	/**
 	 * Save the preferences
 	 */
 	function save() {
-		GM_setValue("macros", BCMacros.macros.filter(m => m.modified).map(m => Object.keys(m).reduce((obj, k) => (k !== "modified" ? obj[k] = m[k] : null, obj), {})))
+		GM_setValue("macros", BCMacros.macros.filter(m => m.modified).map(m => Object.keys(m).reduce((obj, k) => (k !== "modified" ? obj[k] = m[k] : null, obj), {})));
 		BCMacros.log("Macros Saved.");
-		RefreshSettings("Settings have been saved","success");
+		RefreshSettings("Settings have been saved", "success");
 	}
 
 	/**
@@ -193,116 +154,115 @@
 	 */
 	function reset() {
 		data = [];
-		for (let macroId in macros) {
+		for (let macroId in macros)
 			macros[macroId].disableButton();
-		}
 		macros = [];
 		packs.custom.macros = [];
-		for (let packId in packs) {
+		for (let packId in packs)
 			packs[packId].recreateMacros();
-		}
-		RefreshSettings("Settings have been reset. (this will not take perminant effect until you save)","danger");
+		RefreshSettings("Settings have been reset. (This will not take permanent effect until you save)", "danger");
 	}
 
-	function createSetting(macro) {
-		var settingHTML = `<input type="text" class="form-control" value='${macro.name}'>
-							<button class="btn ${macro.button ? "btn-success" : "btn-outline-secondary"}" type="button" id="bcmSetting_${macro.id}-button" >
-							Toggle Button
-							</button>
-							<button class="btn ${macro.key ? "btn-success" : "btn-outline-secondary"}" type="button" id="bcmSetting_${macro.id}-key">
-							${binding == macro ? "Binding.." : macro.key || "Bind Key"}
-							</button>`
-		var settingItem = document.createElement("div");
-		settingItem.id = "bcmSetting_" + macro.id;
-		settingItem.classList.add("input-group")
-		settingItem.innerHTML = settingHTML;
+	/**
+	 * @external KeyboardEvent
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent}
+	 */
+	let binding = undefined;
 
-		var btnButton = settingItem.querySelector(`#bcmSetting_${macro.id}-button`);
-		var btnKey = settingItem.querySelector(`#bcmSetting_${macro.id}-key`);
-		btnKey.style.width = "90px";
+	function createSetting(macro) {
+		let settingItem = document.createElement("div");
+		settingItem.id = `bcmSetting_${macro.id}`;
+		settingItem.classList.add("input-group");
+		settingItem.innerHTML = `
+		<input type="text" class="form-control" value='${macro.name}'>
+		<button class="btn ${macro.button ? "btn-success" : "btn-outline-secondary"} bcm-button" type="button" >
+			Toggle Button
+		</button>
+		<button class="btn ${macro.keyCode ? "btn-success" : "btn-outline-secondary"} bcm-key" type="button" style="width:90px">
+			${binding == macro ? "Binding.." : macro.keyName || "Bind Key"}
+		</button>`;
+
+		let btnButton = settingItem.getElementsByClassName(`bcm-button`)[0];
 		btnButton.addEventListener("click", function (e) {
 			btnButton.classList.toggle("btn-success");
 			btnButton.classList.toggle("btn-outline-secondary");
 			macro.toggleButton();
-			RefreshSettings("There are unsaved changes","warning")
+			RefreshSettings("There are unsaved changes", "warning");
 		}, true);
-		btnKey.addEventListener("click", (e) => {
+
+		let btnKey = settingItem.getElementsByClassName(`bcm-key`)[0];
+		btnKey.addEventListener("click", function (e) {
 			if (binding == macro) {
-				macro.key = undefined;
+				macro.keyCode = undefined;
+				macro.keyName = undefined;
 				binding = undefined;
 				btnKey.classList.remove("btn-success");
 				btnKey.classList.remove("btn-danger");
 				btnKey.classList.add("btn-outline-secondary");
 				btnKey.innerText = "Bind key";
-				BCMacros.log("[BCM] Binding Canceled for" + macro.name);
-				RefreshSettings("There are unsaved changes","warning")
-				return;
+				BCMacros.log(`Binding cancelled for ${macro.name}`);
+				RefreshSettings("There are unsaved changes", "warning");
+			} else {
+				binding = macro;
+				BCMacros.log(`Binding ${macro.name}...`);
+				btnKey.innerText = `Binding..`;
+				btnKey.classList.remove("btn-outline-secondary");
+				btnKey.classList.add("btn-danger");
 			}
-			binding = macro;
-			BCMacros.log("Binding " + macro.name + "...");
-			btnKey.innerText = "Binding..";
-			btnKey.classList.remove("btn-outline-secondary");
-			btnKey.classList.add("btn-danger");
 		}, true);
 
 		return settingItem;
 	}
 
-	function RefreshSettings(notice,type) {
-		var settingGroup = document.getElementById("bcm_settingList")
+	function RefreshSettings(notice, type) {
+		let settingGroup = BCMacros.modal.element.getElementsByClassName("bcmSettingList")[0];
 		settingGroup.innerHTML = "";
 
-		function sendNotice(text,type="info") {
-			var box = document.createElement("div")
-			box.classList.add("alert", "alert-"+type)
-			box.setAttribute("role", "alert")
+		function sendNotice(text, type = "info") {
+			let box = document.createElement("div");
+			box.classList.add("alert", "alert-" + type);
+			box.setAttribute("role", "alert");
 			box.innerText = text;
-			settingGroup.appendChild(box)
-
+			settingGroup.appendChild(box);
 		}
 
-		if (notice) sendNotice(notice,type)
+		if (notice) sendNotice(notice, type);
 
-
-		if(settingsMacro.inaccessible()) {
-			sendNotice("Please set an activation method for the settings macro.","danger")
-			document.getElementById("bcmSettingSave").disabled = true;
-			BCMacros.modal.disableClosing()
+		if (settingsMacro.inaccessible()) {
+			sendNotice(`Please set an activation method for the settings macro.`, "danger");
+			BCMacros.modal.element.getElementsByClassName("bcmSettingSave")[0].disabled = true;
+			BCMacros.modal.disableClosing();
 		} else {
-			BCMacros.modal.enableClosing()
-			document.getElementById("bcmSettingSave").disabled = false
+			BCMacros.modal.enableClosing();
+			BCMacros.modal.element.getElementsByClassName("bcmSettingSave")[0].disabled = false;
 		}
 
 		for (let packId in packs) {
-			var pack = packs[packId];
-			var list = document.createElement("div");
+			let pack = packs[packId];
+			let list = document.createElement("div");
 			list.classList.add("card", "card-body");
-			var heading = document.createElement("h5");
-			heading.classList.add("card-title")
+			let heading = document.createElement("h5");
+			heading.classList.add("card-title");
 			heading.innerText = pack.name;
 			list.appendChild(heading);
 			if (pack.macros.length == 0) {
-				var heading = document.createElement("p");
-				heading.innerText = "There are no macros in this pack";
-				if (pack.id == "custom") heading.innerText = "You have created no custom macros";
-				list.appendChild(heading);
-
+				let disclaimer = document.createElement("p");
+				disclaimer.innerText = "There are no macros in this pack";
+				if (pack.id == "custom") disclaimer.innerText = "You have created no custom macros";
+				list.appendChild(disclaimer);
 			}
 
-			for (let packMacros of pack.macros) {
-				var macro = macros[packMacros.id];
-				var setting = createSetting(macro)
-				list.appendChild(setting);
-			}
+			for (let packMacros of pack.macros)
+				list.appendChild(createSetting(macros[packMacros.id]));
+
 			settingGroup.appendChild(list);
 		}
 	}
 
 
 	function isSettingsOpen() {
-		var settings = BCMacros.modal
-		if (!settings) return;
-		return window.getComputedStyle(settings.element).display !== "none";
+		if (!BCMacros.modal) return;
+		return window.getComputedStyle(BCMacros.modal.element).display !== "none";
 	}
 
 	/**
@@ -310,48 +270,7 @@
 	 */
 	function displaySettings(notice) {
 		BCMacros.modal.show();
-		var newNameField = document.getElementById("bcmSettingName")
-		var newContentField = document.getElementById("bcmSettingContent")
-		var settingJSField = document.getElementById("bcmSettingJS")
-		var settingChatField = document.getElementById("bcmSettingChat")
-		var settingSave = document.getElementById("bcmSettingSave");
-		var settingReset = document.getElementById("bcmSettingReset");
-
-
-		settingJSField.addEventListener("click", _ => {
-			var name = newNameField.value;
-			var action = newContentField.value;
-			customMacros.createMacro({ name, action })
-			RefreshSettings("There are unsaved changes","warning");
-		})
-		settingChatField.addEventListener("click", _ => {
-			var name = newNameField.value;
-			var action = "BCMacros.sendMessage(" + JSON.stringify(newContentField.value) + ")";
-			customMacros.createMacro({ name, action })
-			RefreshSettings("There are unsaved changes","warning");
-		})
-		settingSave.addEventListener("click", _ => {
-			save();
-		})
-		settingReset.addEventListener("click", _ => {
-			reset();
-		})
 		RefreshSettings(notice);
-	}
-
-	function regenerateButtons() {
-		for (let packId in packs) {
-			var pack = packs[packId]
-			for (let button of pack.buttons) {
-				removeButton(button);
-			}
-		}
-		for (let macro of macros) {
-			var btnOptions = macro.button;
-			if (!btnOptions) continue;
-			delete macro.button;
-			macro.enableButton(btnOptions);
-		}
 	}
 
 
@@ -361,10 +280,10 @@
 			this.name = name;
 			this.pack = pack;
 
-			if (typeof (action) == "string") action = Function(action)
+			if (typeof action == "string") action = Function(action);
 			this.action = action;
 			if (key) this.bindKey(key);
-			if (button) this.enableButton(button)
+			if (button) this.enableButton(button);
 			this.modified = false;
 		}
 
@@ -378,31 +297,50 @@
 			return this.getPack().buttons[this.button.id];
 		}
 
-		bindKey(key) {
-			this.key = key;
+		bindKey(keyCode, keyName) {
+			this.keyCode = keyCode;
+			this.keyName = this.getKeyName(keyCode, keyName);
 			this.modified = true;
 			return this;
 		}
 
+		getKeyName(keyCode, keyName) {
+			if (/^Numpad/.test(keyCode))
+				if (/^Numpad\d$/.test(keyCode))
+					return `Num ${keyCode[6]}`;
+				else
+					return `Num ${this.getKeyName(keyCode.replace('Numpad', ''), keyName)}`;
+
+			if (/^Key\w$/.test(keyCode))
+				return keyName ? keyName.toUpperCase() : keyCode[3];
+			if (/^Digit\d$/.test(keyCode))
+				return keyCode[5];
+			if (/^Arrow/.test(keyCode))
+				return keyName.replace('Arrow', '');
+			if (/^\s*$/.test(keyName))
+				return keyCode;
+
+			let md = /(?:Bracket)?(?:Left|Right)$/.exec(keyCode);
+			if (md && !/^Bracket/.test(md))
+				return `${md[0]} ${keyName}`;
+
+			return (keyName && keyName != "Unidentified") ? keyName : keyCode;
+		}
+
 		enableButton(options = {}) {
 			if (this.button) return;
-			var mergedOptions = Object.assign({
+			let mergedOptions = Object.assign({
 				location: "bottom",
 				text: this.id,
 				color: "info",
 				size: "md"
 			}, options);
-			var buttonElement = addButton(mergedOptions)
+			let buttonElement = addButton(mergedOptions);
 			if (!buttonElement) {
 				BCMacros.log("There was an error creating button", options);
 				return this;
 			}
-			if (buttonElement.tagName == "BTN") {
-				buttonElement.addEventListener("click", this.action);
-			} else {
-				let btn = buttonElement.querySelector("button")
-				btn.addEventListener("click", this.action);
-			}
+			buttonElement.addEventListener("click", this.action);
 			options.id = this.getPack().buttons.push(buttonElement) - 1;
 			this.button = options;
 			this.modified = true;
@@ -410,24 +348,22 @@
 		}
 		disableButton() {
 			if (!this.button) return;
-			var pack = this.getPack();
-			var button = pack.buttons[this.button.id];
+			let pack = this.getPack();
+			let button = pack.buttons[this.button.id];
 			removeButton(button);
-			pack.buttons.splice(this.button.id, 1);
-			var removedID = this.button.id;
+			delete pack.buttons[this.button.id];
 			delete this.button;
-			macros.forEach(macro => macro.pack != this.pack || !macro.button || macro.button.id && macro.button.id > removedID && macro.button.id-- && BCMacros.log(macro.id, macro.button, (macro.button.id + 1) + "=>" + macro.button.id))
 			this.modified = true;
 			return this;
 		}
 		inaccessible() {
-			return !this.key && !this.button;
+			return !this.keyCode && !this.button;
 		}
 
 		toggleButton(options) {
 			this.button
 				? this.disableButton()
-				: this.enableButton(options)
+				: this.enableButton(options);
 		}
 	}
 
@@ -439,7 +375,7 @@
 			this.id = TumbleMod.camelize(name);
 			this.name = name;
 			this.macros = [];
-			this.buttons = [];
+			this.buttons = []; // DO NOT ITERATE OVER THIS WITH "of"
 		}
 
 		/**
@@ -448,25 +384,27 @@
 		 */
 		createMacro(options) {
 			options.pack = this.id;
-			var macro = new Macro(options);
+			let macro = new Macro(options);
 			if (this.id == "custom") macro.actionString = options.action.toString();
 			options.id = macros.push(macro) - 1;
 			if (!this.macros.find(o => o.io == options.id)) this.macros.push(options);
 
-			//load prreferences
-			var preferences = data.find(d => d.pack == this.id && d.id == macro.id)
-			if (preferences) {
-				var testToChange = { id: preferences.id, name: options.name, pack: preferences.pack }
-				if (macro.button) testToChange.button = macro.button;
-				if (macro.key) testToChange.key = macro.key;
-				if (JSON.stringify(preferences) != JSON.stringify(testToChange)) {
-					BCMacros.log("Loading Preferences for macro " + macro.id)
-					if (preferences.key) macro.bindKey(preferences.key);
-					if (preferences.button) {
-						macro.enableButton(preferences.button);
-					} else {
+			// load preferences
+			let pref = data.find(d => d.pack == this.id && d.id == macro.id);
+			if (pref) {
+				let diffTest = { id: pref.id, name: options.name, pack: pref.pack };
+				if (macro.button) diffTest.button = macro.button;
+				if (macro.keyCode) {
+					diffTest.keyCode = macro.keyCode;
+					diffTest.keyName = macro.keyName;
+				}
+				if (JSON.stringify(pref) != JSON.stringify(diffTest)) {
+					BCMacros.log(`Loading Preferences for macro ${macro.id}`);
+					if (pref.keyCode) macro.bindKey(pref.keyCode, pref.keyName);
+					if (pref.button)
+						macro.enableButton(pref.button);
+					else
 						macro.disableButton();
-					}
 				}
 			}
 			return macro;
@@ -474,7 +412,7 @@
 
 		recreateMacros() {
 			for (let options of this.macros) {
-				var macro = new Macro(options);
+				let macro = new Macro(options);
 				macro.pack = this.id;
 				if (this.id == "custom") macro.actionString = options.action.toString();
 				options.id = macros.push(macro) - 1;
@@ -483,97 +421,87 @@
 	}
 
 	/**
-	 * 
 	 * @param {String} name Pack name
 	 */
 	function createMacroPack(options) {
-		if (typeof (options) == "string") options = { name: options };
-		var macroPack = new MacroPack(options);
-		packs[macroPack.id] = macroPack
+		if (typeof options == "string") options = { name: options };
+		let macroPack = new MacroPack(options);
+		packs[macroPack.id] = macroPack;
 
 		return macroPack;
 	}
 
-	var me = createMacroPack("BCMacros")
+	let me = createMacroPack("BCMacros");
 
-	//<i class="fas fa-cog"></i>
-	var settingsMacro = me.createMacro({
+	let settingsMacro = me.createMacro({
 		name: "settings",
-		action: _ => {
-			displaySettings()
-		},
+		action: _ => displaySettings(),
 		button: {
-			text: '<i class="fas fa-cog"></i>',
+			text: `<i class="fas fa-cog"></i>`,
 			color: "primary"
-		}
-	})
+		},
+	});
 
-
-	var customMacros = createMacroPack("Custom");
-	//Setup custom macros
-
+	let customMacros = createMacroPack("Custom");
+	// Setup custom macros
 
 	for (let options of data) {
 		if (options.pack != "custom") continue;
 		customMacros.createMacro({
 			name: options.name,
-			action: options.actionString
-		})
+			action: options.actionString,
+		});
 	}
 	BCMacros.createMacro = customMacros.createMacro;
 
 	// Runs on page load
 	TumbleMod.onDocumentLoaded().then(_ => {
 		BCMacros.log("Document Loaded");
-		//Initialisation
-		BCMacros.log("Installing Font Awesome")
-		var fontAwesomeText = GM_getResourceText("fontAwesome");
+		// Initialisation
+		BCMacros.log("Installing Font Awesome");
+		let fontAwesomeText = GM_getResourceText("fontAwesome");
 		GM_addStyle(fontAwesomeText);
 
-		BCMacros.log("Inseting Button Container")
-		var chatBar = document.getElementById('menu');
+		BCMacros.log("Inseting Button Container");
+		let chatBar = document.getElementById('menu');
 		chatBar.parentElement.insertAdjacentElement("afterend", btnContainer);
 
 
-		//Setup Inputs
-		document.addEventListener("keydown", function (e) {
+		// Setup Inputs
+		document.addEventListener("keydown", function ({ code: keyCode, key: keyName }) {
 			if (binding) {
-				binding.bindKey(e.key);
+				binding.bindKey(keyCode, keyName);
 				binding = undefined;
-				RefreshSettings("There are unsaved changes")
+				RefreshSettings("There are unsaved changes");
 				return;
 			}
 
-			var macro = macros.find(a => a.key == e.key)
+			let macro = macros.find(a => a.keyCode == keyCode);
 			if (!macro) return;
-			if (isSettingsOpen()) {
-				document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.add("bg-success", "text-white")
-			} else {
+			if (isSettingsOpen())
+				document.getElementById(`bcmSetting_${macro.id}`).firstElementChild.classList.add("bg-success", "text-white");
+			else {
 				BCMacros.log("Triggering", macro.name, "by key...");
 				macro.action();
 			}
 
 		});
-		document.addEventListener("keyup", function (e) {
-
-			var macro = macros.find(a => a.key == e.key)
+		document.addEventListener("keyup", function ({ code: keyCode, key: keyName }) {
+			let macro = macros.find(a => a.keyCode == keyCode);
 			if (!macro) return;
-			if (isSettingsOpen()) {
-				document.querySelectorAll("#bcmSetting_" + macro.id + " > *")[0].classList.remove("bg-success", "text-white")
-			}
-
+			if (isSettingsOpen())
+				document.getElementById(`bcmSetting_${macro.id}`).firstElementChild.classList.remove("bg-success", "text-white");
 		}, false);
 	});
-	BCMacros.modal.addEventListener("created",()=>{
-		BCMacros.log("Modal Created")
+	BCMacros.modal.addEventListener("created", () => {
+		BCMacros.log("Modal Created");
 
-		BCMacros.log("Cheacking Accessibiliy of the settings")
-		if (settingsMacro.inaccessible()) {
+		BCMacros.log("Cheacking Accessibiliy of the settings");
+		if (settingsMacro.inaccessible())
 			displaySettings();
-		}
-	})
+	});
 
 	exportFunction(BCMacros, unsafeWindow, {
-		defineAs: "BCMacros"
+		defineAs: "BCMacros",
 	});
 })();
