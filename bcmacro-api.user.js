@@ -6,9 +6,9 @@
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
-// @require      https://github.com/tumble1999/modial/raw/master/modial.js
+// @require      https://github.com/tumble1999/modial/raw/master/popper.js
+// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.js
 // @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
-// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -70,9 +70,7 @@
 		});
 
 	BCMacros.log("Inserting Modal");
-	BCMacros.settingsPage = Critterguration.registerSettingsMenu(BCMacros, _ => {
-		RefreshSettings();
-	});
+	BCMacros.settingsPage = Critterguration.registerSettingsMenu(BCMacros, _ => RefreshSettings());
 	if (!BCMacros.settingsPage) throw "No settings page was made";
 	BCMacros.settingsPage.innerHTML = `
 	<div class="card card-body bcmSettingCreate">
@@ -83,10 +81,10 @@
 		</div>
 		<textarea type="text" class="form-control bcmSettingContent" placeholder="Action/Text"></textarea>
 	</div>
-	<div class="card-group-vertical bcmSettingList"></div>
-	
+	<div class="card-group-vertical bcmSettingList">
+	</div>
 	<button class="btn btn-danger bcmSettingReset" type="button">Reset</button>
-	<button class="btn btn-primary bcmSettingSave" type="button" >Save</button>
+	<button class="btn btn-primary bcmSettingSave" type="button">Save</button>
 `;
 	{
 		let
