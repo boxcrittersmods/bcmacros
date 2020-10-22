@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         BCMacro API
 // @namespace    http://discord.gg/G3PTYPy
-// @version      0.7.4.104
+// @version      0.7.5.105
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @resource fontAwesome https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
 // @require      https://github.com/tumble1999/modial/raw/master/modial.js
-// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.js
+// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js
 // @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
@@ -51,9 +51,8 @@
  */
 (function () {
 	'use strict';
-	window = unsafeWindow || window;
-	let btnContainer = document.createElement("div");
-	btnContainer.id = "bcmButtonGroup";
+	console.log("hmm");
+	//window = unsafeWindow || window;
 	let packs = {},
 		macros = [],
 		BCMacros = new TumbleMod({
@@ -66,8 +65,10 @@
 			sendMessage,
 			save,
 			reset,
-			btnContainer
+			//btnContainer
 		});
+	//let btnContainer = document.createElement("div");
+	//btnContainer.id = "bcmButtonGroup";
 
 	BCMacros.log("Inserting Modal");
 	BCMacros.settingsPage = Critterguration.registerSettingsMenu(BCMacros, _ => RefreshSettings());
@@ -453,11 +454,6 @@
 		BCMacros.log("Installing Font Awesome");
 		let fontAwesomeText = GM_getResourceText("fontAwesome");
 		GM_addStyle(fontAwesomeText);
-
-		BCMacros.log("Inseting Button Container");
-		let chatBar = document.getElementById('menu');
-		chatBar.parentElement.insertAdjacentElement("afterend", btnContainer);
-
 
 		// Setup Inputs
 		document.addEventListener("keydown", function ({ code: keyCode, key: keyName }) {
