@@ -8,6 +8,7 @@
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
 // @require      https://github.com/tumble1999/popper/raw/master/popper.js
 // @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
+// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -62,7 +63,6 @@
 			macros,
 			createMacroPack,
 			CreateMacroPack: createMacroPack,
-			displaySettings,
 			sendMessage,
 			save,
 			reset,
@@ -70,28 +70,27 @@
 		});
 
 	BCMacros.log("Inserting Modal");
-	BCMacros.modal = new Popper();
-	BCMacros.modal.setContent({
-		header: `Macro Settings ${Popper.closeButton}`,
-		body: `
-			<div class="card card-body bcmSettingCreate">
-				<div class="input-group">
-					<input type="text" class="form-control bcmSettingName" placeholder="New Macro...">
-					<button class="btn btn-outline-secondary bcmSettingJS" type="button">JS</button>
-					<button class="btn btn-outline-secondary bcmSettingChat" type="button">Chat</button>
-				</div>
-				<textarea type="text" class="form-control bcmSettingContent" placeholder="Action/Text"></textarea>
-			</div>
-			<div class="card-group-vertical bcmSettingList"></div>
-		`,
-		footer: `
-			<button class="btn btn-danger bcmSettingReset" type="button">Reset</button>
-			<button class="btn btn-primary bcmSettingSave" type="button" data-dismiss="modal">Save</button>
-		`,
+	BCMacros.settingsPage = Critterguration.registerSettingsMenu(BCMacros, _ => {
+		RefreshSettings(notice);
 	});
+	if (!BCMacros.settingsPage) throw "No settings page was made";
+	BCMacros.settingsPage.innerHTML = `
+	<div class="card card-body bcmSettingCreate">
+		<div class="input-group">
+			<input type="text" class="form-control bcmSettingName" placeholder="New Macro...">
+			<button class="btn btn-outline-secondary bcmSettingJS" type="button">JS</button>
+			<button class="btn btn-outline-secondary bcmSettingChat" type="button">Chat</button>
+		</div>
+		<textarea type="text" class="form-control bcmSettingContent" placeholder="Action/Text"></textarea>
+	</div>
+	<div class="card-group-vertical bcmSettingList"></div>
+	
+	<button class="btn btn-danger bcmSettingReset" type="button">Reset</button>
+	<button class="btn btn-primary bcmSettingSave" type="button" >Save</button>
+`;
 	{
 		let
-			mc = BCMacros.modal.element.getElementsByClassName("modal-content")[0],
+			mc = BCMacros.settingsPage,
 			newNameField = mc.getElementsByClassName("bcmSettingName")[0],
 			newContentField = mc.getElementsByClassName("bcmSettingContent")[0],
 			settingJSField = mc.getElementsByClassName("bcmSettingJS")[0],
@@ -217,7 +216,9 @@
 	}
 
 	function RefreshSettings(notice, type) {
-		let settingGroup = BCMacros.modal.element.getElementsByClassName("bcmSettingList")[0];
+		BCMacros.log(BCMacros);
+		let settingGroup = BCMacros.settingsPage.getElementsByClassName("bcmSettingList")[0];
+		BCMacros.log("BEEP", settingGroup);
 		settingGroup.innerHTML = "";
 
 		function sendNotice(text, type = "info") {
@@ -232,11 +233,13 @@
 
 		if (settingsMacro.inaccessible()) {
 			sendNotice(`Please set an activation method for the settings macro.`, "danger");
-			BCMacros.modal.element.getElementsByClassName("bcmSettingSave")[0].disabled = true;
-			BCMacros.modal.disableClosing();
+			BCMacros.settingsPage.getElementsByClassName("bcmSettingSave")[0].disabled = true;
+			//Todo: add disable closng to Critterguration
+			//BCMacros.modal.disableClosing();
 		} else {
-			BCMacros.modal.element.getElementsByClassName("bcmSettingSave")[0].disabled = false;
-			BCMacros.modal.enableClosing();
+			BCMacros.settingsPage.getElementsByClassName("bcmSettingSave")[0].disabled = false;
+			//Todo: add disable closng to Critterguration
+			//BCMacros.modal.enableClosing();
 		}
 
 		for (let packId in packs) {
@@ -261,20 +264,9 @@
 		}
 	}
 
-
 	function isSettingsOpen() {
-		if (!BCMacros.modal) return;
-		return window.getComputedStyle(BCMacros.modal.element).display !== "none";
+		return Critterguration.isOpen();
 	}
-
-	/**
-	 * Brings up the settings window
-	 */
-	function displaySettings(notice) {
-		BCMacros.modal.show();
-		RefreshSettings(notice);
-	}
-
 
 	class Macro {
 		constructor({ name, pack, action, key, button }) {
@@ -437,7 +429,7 @@
 
 	let settingsMacro = me.createMacro({
 		name: "settings",
-		action: _ => displaySettings(),
+		action: _ => Critterguration.openSettings(),
 		button: {
 			text: `<i class="fas fa-cog"></i>`,
 			color: "primary"
@@ -495,12 +487,9 @@
 				document.getElementById(`bcmSetting_${macro.id}`).firstElementChild.classList.remove("bg-success", "text-white");
 		}, false);
 	});
-	BCMacros.modal.addEventListener("created", () => {
-		BCMacros.log("Modal Created");
-		BCMacros.log("Checking settings accessibility");
-		if (settingsMacro.inaccessible())
-			displaySettings();
-	});
+
+	if (settingsMacro.inaccessible())
+		Critterguration.openSettings("bcmacros");
 
 	exportFunction(BCMacros, unsafeWindow, {
 		defineAs: "BCMacros",
