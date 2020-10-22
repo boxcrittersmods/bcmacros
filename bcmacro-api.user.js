@@ -70,9 +70,7 @@
 		});
 
 	BCMacros.log("Inserting Modal");
-	BCMacros.settingsPage = Critterguration.registerSettingsMenu(BCMacros, _ => {
-		RefreshSettings(notice);
-	});
+	BCMacros.settingsPage = Critterguration.registerSettingsMenu(BCMacros, _ => RefreshSettings());
 	if (!BCMacros.settingsPage) throw "No settings page was made";
 	BCMacros.settingsPage.innerHTML = `
 	<div class="card card-body bcmSettingCreate">
@@ -83,10 +81,10 @@
 		</div>
 		<textarea type="text" class="form-control bcmSettingContent" placeholder="Action/Text"></textarea>
 	</div>
-	<div class="card-group-vertical bcmSettingList"></div>
-	
+	<div class="card-group-vertical bcmSettingList">
+	</div>
 	<button class="btn btn-danger bcmSettingReset" type="button">Reset</button>
-	<button class="btn btn-primary bcmSettingSave" type="button" >Save</button>
+	<button class="btn btn-primary bcmSettingSave" type="button">Save</button>
 `;
 	{
 		let
