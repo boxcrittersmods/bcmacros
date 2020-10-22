@@ -6,7 +6,7 @@
 // @author TumbleGamer
 // @match https://boxcritters.com/play/index.html
 // @require      https://code.jquery.com/jquery-3.5.1.slim.min.js
-// @require      https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/umd/popper.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/modial.js/2.4.0/umd/modial.min.js
 // @require      https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js
 // @grant unsafeWindow
 // @run-at document-end
@@ -14,7 +14,7 @@
 
 
 var BCMacro = window.BCMacro;
-if(!BCMacro) {
+if (!BCMacro) {
 	// Dialog box from critters+
 	// https://github.com/boxcritters/CrittersPlus
 	{
@@ -40,18 +40,18 @@ if(!BCMacro) {
 		if (footer) $("#CP_modal .modal-footer").html(footer);
 		return $("#CP_model");
 	}
-	createDialogue("Macro Info",`You Will need the Macro API inorder to use this mod.`,
-	'<a class="btn btn-primary" href="https://boxcrittersmods.ga/mods/bcmacro-api/">Install Macro API</a>')
+	createDialogue("Macro Info", `You Will need the Macro API inorder to use this mod.`,
+		'<a class="btn btn-primary" href="https://boxcrittersmods.ga/mods/bcmacro-api/">Install Macro API</a>');
 }
 
 // Runs on page load
 window.addEventListener("load", async function () {
 	var testPack = BCMacros.CreateMacroPack("test");
 	testPack.createMacro({
-		name:"Hello",
-		action:function() {
+		name: "Hello",
+		action: function () {
 			BCMacro.sendMessage("Hello World");
 		},
-		button:{}
+		button: {}
 	});
 });
