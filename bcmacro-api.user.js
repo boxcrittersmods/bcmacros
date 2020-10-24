@@ -363,7 +363,7 @@
 
 		/**
 		 * 
-		 * @param {BCMacroData} options 
+		 * @param {BCMacroData} options
 		 */
 		createMacro(options) {
 			options.pack = this.id;
