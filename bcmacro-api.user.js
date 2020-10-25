@@ -5,7 +5,7 @@
 // @version      0.8.0.107
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
-// @icon         https://github.com/boxcrittersmods/BCMacroAPI/raw/master/icon.png
+// @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
 // @require      https://kit.fontawesome.com/efb91a96ed.js
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
 // @require      https://github.com/tumble1999/modial/raw/master/modial.js
@@ -20,7 +20,7 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
-// @updateURL    https://github.com/boxcritters/BCMacroAPI/raw/master/bcmacro-api.user.js
+// @updateURL    https://github.com/boxcritters/bcmacros/raw/master/bcmacro-api.user.js
 // @run-at       document-start
 // ==/UserScript==
 
