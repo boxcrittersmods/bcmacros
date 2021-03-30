@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Test
-// @namespace https://boxcrittersmods.ga
+// @namespace https://bcmc.ga
 // @version 0.1.0
 // @description Test
 // @author TumbleGamer
@@ -41,7 +41,7 @@ if (!BCMacro) {
 		return $("#CP_model");
 	}
 	createDialogue("Macro Info", `You Will need the Macro API inorder to use this mod.`,
-		'<a class="btn btn-primary" href="https://boxcrittersmods.ga/mods/bcmacro-api/">Install Macro API</a>');
+		'<a class="btn btn-primary" href="https://bcmc.ga/mods/bcmacro-api/">Install Macro API</a>');
 }
 
 // Runs on page load

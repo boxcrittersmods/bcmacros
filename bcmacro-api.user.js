@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BCMacro API
-// @namespace    https://boxcrittersmods.ga/authors/tumblegamer/
+// @namespace    https://bcmc.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
 // @version      0.8.0.107
 // @description  Adds Buttons and Keybinds to Box Critters

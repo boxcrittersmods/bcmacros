@@ -1,6 +1,6 @@
 # BCMacro API
 
-[![BCMacro API](https://api.boxcrittersmods.ga/button/bcmacro-api)](https://boxcrittersmods.ga/mods/bcmacro-api/)
+[![BCMacro API](https://api.bcmc.ga/button/bcmacro-api)](https://bcmc.ga/mods/bcmacro-api/)
 
 An API for creating buttons and keybinds.
 
@@ -23,7 +23,7 @@ To use BCMacro API you fill first need to install a userscript manager.
 
 ### Installing
 
-Install us via the [BCMC Website](https://boxcrittersmods.ga/mods/bcmacro-api/).
+Install us via the [BCMC Website](https://bcmc.ga/mods/bcmacro-api/).
 
 ## Usage
 
@@ -57,7 +57,7 @@ myMacroPack.createMacro({
 
 ### Docuementation
 
-All documentation lives [here](https://docs.boxcrittersmods.ga/BCMacroAPI/)
+All documentation lives [here](https://docs.bcmc.ga/BCMacroAPI/)
 
 
 ## Licensing
