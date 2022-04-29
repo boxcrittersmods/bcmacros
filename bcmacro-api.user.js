@@ -2,7 +2,7 @@
 // @name         BCMacro API
 // @namespace    https://bcmc.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.8.0.107
+// @version      0.9.0.108
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
@@ -26,16 +26,16 @@
 
 /**
  * bcmacro-api.user.js
- * 
+ *
  * Copyright 2020 TumbleGamer <tumblegamer@gmail.com>
  * Copyright 2020 The Box Critters Modding Community
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,8 +52,6 @@
 (function () {
 	'use strict';
 	//window = unsafeWindow || window;
-
-
 
 	let packs = {},
 		macros = [],
@@ -139,7 +137,8 @@
 
 	function removeButton(btn) {
 		BCMacros.log("Removing button", btn);
-		ctrlPanel.removeButton(btn);
+		//ctrlPanel.removeButton(btn);
+		btn.parentElement.removeChild(btn);
 	}
 
 	/**
@@ -177,7 +176,7 @@
 		settingItem.classList.add("input-group");
 		settingItem.innerHTML = `
 		<input type="text" class="form-control" value='${macro.name}'>
-		<button class="btn ${macro.button ? "btn-success" : "btn-outline-secondary"} bcm-button" type="button" >
+		<button class="btn ${macro.buttonEnabled() ? "btn-success" : "btn-outline-secondary"} bcm-button" type="button" >
 			Toggle Button
 		</button>
 		<button class="btn ${macro.keyCode ? "btn-success" : "btn-outline-secondary"} bcm-key" type="button" style="width:90px">
@@ -311,32 +310,68 @@
 			return (keyName && keyName != "Unidentified") ? keyName : keyCode;
 		}
 
-		enableButton(options = {}) {
-			if (this.button) return;
-			let mergedOptions = Object.assign({
-				location: "bottom",
-				text: this.id,
-				color: "info",
-				size: "md"
-			}, options);
-			let buttonElement = addButton(mergedOptions);
-			if (!buttonElement) {
-				BCMacros.log("There was an error creating button", options);
-				return this;
+		registerButton(button) {
+			console.log(button.onclick);
+			if (!this.button) this.button = {};
+			let pack = this.getPack(),
+				id = this.button.id;
+			if (id) {
+				pack.buttons[id] = button;
+			} else {
+				id = this.button.id = pack.buttons.push(button) - 1;
 			}
-			buttonElement.addEventListener("click", this.action);
-			options.id = this.getPack().buttons.push(buttonElement) - 1;
-			this.button = options;
+			if (button.onclick) this.action = button.onclick;
+			delete button.removeAttribute("onclick");
+			this.button.enabled = true;
+		}
+
+		setAction(action) {
+			this.action = action;
+			if (this.button && this.button.id) {
+				let button = this.getPack().buttons[this.button.id];
+				button.addEventListener("click", action);
+			}
+		}
+
+		enableButton(options = {}) {
+			if (this.button && this.button.enabled) return;
+
+			let pack = this.getPack();
+
+			if (!this.button || typeof this.button.id != "number") {
+				let mergedOptions = Object.assign({
+					location: "bottom",
+					text: this.id,
+					color: "info",
+					size: "md"
+				}, options);
+				let buttonElement = addButton(mergedOptions);
+				if (!buttonElement) {
+					BCMacros.log("There was an error creating button", options);
+					return this;
+				}
+				buttonElement.addEventListener("click", this.action);
+				options.id = pack.buttons.push(buttonElement) - 1;
+				pack.parents[options.id] = buttonElement.parentElement;
+				this.button = options;
+			}
+			let element = pack.buttons[this.button.id],
+				parent = pack.parents[this.button.id];
 			this.modified = true;
+			this.button.enabled = true;
+			if (!element.parentElement && parent) {
+				parent.appendChild(element);
+			}
 			return this;
 		}
 		disableButton() {
-			if (!this.button) return;
-			let pack = this.getPack();
-			let button = pack.buttons[this.button.id];
+			if (!this.buttonEnabled()) return;
+			let pack = this.getPack(),
+				button = pack.buttons[this.button.id];
+			pack.parents[this.button.id] = button.parentElement;
 			removeButton(button);
-			delete pack.buttons[this.button.id];
-			delete this.button;
+
+			this.button.enabled = false;
 			this.modified = true;
 			return this;
 		}
@@ -344,8 +379,12 @@
 			return !this.keyCode && !this.button;
 		}
 
+		buttonEnabled() {
+			return this.button && this.button.enabled;
+		}
+
 		toggleButton(options) {
-			this.button
+			(this.button && this.button.enabled)
 				? this.disableButton()
 				: this.enableButton(options);
 		}
@@ -359,19 +398,26 @@
 			this.id = TumbleMod.camelize(name);
 			this.name = name;
 			this.macros = [];
+			this.parents = [];
 			this.buttons = []; // DO NOT ITERATE OVER THIS WITH "of"
 		}
 
 		/**
-		 * 
+		 *
 		 * @param {BCMacroData} options
 		 */
-		createMacro(options) {
+		createMacro(options, button) {
 			options.pack = this.id;
 			let macro = new Macro(options);
 			if (this.id == "custom") macro.actionString = options.action.toString();
 			options.id = macros.push(macro) - 1;
 			if (!this.macros.find(o => o.io == options.id)) this.macros.push(options);
+
+			//register existing button
+			if (button) {
+				BCMacros.log("Registering an existing button", button, macro);
+				macro.registerButton(button);
+			}
 
 			// load preferences
 			let pref = data.find(d => d.pack == this.id && d.id == macro.id);
@@ -385,7 +431,7 @@
 				if (JSON.stringify(pref) != JSON.stringify(diffTest)) {
 					BCMacros.log(`Loading Preferences for macro ${macro.id}`);
 					if (pref.keyCode) macro.bindKey(pref.keyCode, pref.keyName);
-					if (pref.button)
+					if (pref.button && pref.button.enabled)
 						macro.enableButton(pref.button);
 					else
 						macro.disableButton();
@@ -415,9 +461,11 @@
 		return macroPack;
 	}
 
-	let customMacros = createMacroPack("Custom");
-	// Setup custom macros
+	// Setup BoxCritters macros
+	let snailMacros = createMacroPack("Box Critters");
 
+	// Setup custom macros
+	let customMacros = createMacroPack("Custom");
 	for (let options of data) {
 		if (options.pack != "custom") continue;
 		customMacros.createMacro({
@@ -430,6 +478,24 @@
 	// Runs on page load
 	TumbleMod.onDocumentLoaded().then(_ => {
 		BCMacros.log("Document Loaded");
+
+		// Setup BC Buttons
+		let menu = document.getElementById("menu");
+		snailMacros.createMacro({
+			name: "chat"
+		}, menu.children[0].children[0]);
+		snailMacros.createMacro({
+			name: "cards"
+		}, menu.children[1].children[0]);
+		snailMacros.createMacro({
+			name: "items"
+		}, menu.children[2].children[0]);
+		snailMacros.createMacro({
+			name: "shop"
+		}, menu.children[3].children[0]);
+		snailMacros.createMacro({
+			name: "misc"
+		}, menu.children[4].children[0]);
 
 		// Setup Inputs
 		document.addEventListener("keydown", function ({ code: keyCode, key: keyName }) {
