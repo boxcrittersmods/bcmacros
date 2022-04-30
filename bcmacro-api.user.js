@@ -2,7 +2,7 @@
 // @name         BCMacro API
 // @namespace    https://bcmc.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.9.0.108
+// @version      0.9.1.109
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
@@ -320,8 +320,11 @@
 			} else {
 				id = this.button.id = pack.buttons.push(button) - 1;
 			}
-			if (button.onclick) this.action = button.onclick;
-			delete button.removeAttribute("onclick");
+			if (button.onclick) {
+				//this.action = button.onclick;
+				this.setAction(button.onclick);
+				delete button.removeAttribute("onclick");
+			}
 			this.button.enabled = true;
 		}
 
