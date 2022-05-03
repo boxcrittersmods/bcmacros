@@ -53,14 +53,40 @@
 	const uWindow = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
 
 	if (uWindow.BCMacros) return;
-	if (typeof TumbleMod == 'undefined') throw `// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js`;
-	if (typeof Modial == 'undefined') throw `// @require      https://github.com/tumble1999/modial/raw/master/modial.js`;
-	if (typeof Critterguration == 'undefined') throw `// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js`;
-	if (typeof ctrlPanel == 'undefined') throw `// @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js`;
-	if (typeof GM_getValue == 'undefined') throw "// @grant        GM_getValue";
-	if (typeof GM_setValue == 'undefined') throw "// @grant        GM_setValue";
-	if (typeof GM_deleteValue == 'undefined') throw "// @grant        GM_deleteValue";
-
+	let deps = [
+		{
+			obj: TumbleMod,
+			text: "// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js"
+		},
+		{
+			obj: Modial,
+			text: "// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js"
+		},
+		{
+			obj: Critterguration,
+			text: "// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js"
+		},
+		{
+			obj: ctrlPanel,
+			text: "// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js"
+		},
+		{
+			obj: GM_getValue,
+			text: "// @grant        GM_getValue"
+		},
+		{
+			obj: GM_setValue,
+			text: "// @grant        GM_setValue"
+		},
+		{
+			obj: GM_deleteValue,
+			text: "// @grant        GM_deleteValue"
+		}
+	];
+	if (deps.map(dep => typeof dep.obj).includes("undefined")) throw `ATTENTION MOD DEVELOPER:
+	Please add the following to your code ${deps.map(dep => {
+		if (typeof dep.obj == "undefined") return dep.text; else return "";
+	}).join("\n")}`;
 	let packs = {},
 		macros = [],
 		macroChord = [],
