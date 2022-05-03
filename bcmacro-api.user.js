@@ -2,15 +2,15 @@
 // @name         BCMacro API
 // @namespace    https://bcmc.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.10.1.113
+// @version      0.11.0.114
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
 // @require      https://kit.fontawesome.com/efb91a96ed.js
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
 // @require      https://github.com/tumble1999/modial/raw/master/modial.js
-// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js
 // @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js
+// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js
 // @match        https://boxcritters.com/play/
 // @match        https://boxcritters.com/play/?*
 // @match        https://boxcritters.com/play/#*
@@ -55,38 +55,37 @@
 	if (uWindow.BCMacros) return;
 	let deps = [
 		{
-			obj: TumbleMod,
+			obj: "TumbleMod",
 			text: "// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js"
 		},
 		{
-			obj: Modial,
-			text: "// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js"
+			obj: "Modial",
+			text: "// @require      https://github.com/tumble1999/modial/raw/master/modial.js"
 		},
 		{
-			obj: Critterguration,
-			text: "// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js"
+			obj: "ctrlPanel",
+			text: "// @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js"
 		},
 		{
-			obj: ctrlPanel,
-			text: "// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js"
+			obj: "Critterguration",
+			text: "// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js"
 		},
 		{
-			obj: GM_getValue,
+			obj: "GM_getValue",
 			text: "// @grant        GM_getValue"
 		},
 		{
-			obj: GM_setValue,
+			obj: "GM_setValue",
 			text: "// @grant        GM_setValue"
 		},
 		{
-			obj: GM_deleteValue,
+			obj: "GM_deleteValue",
 			text: "// @grant        GM_deleteValue"
 		}
 	];
-	if (deps.map(dep => typeof dep.obj).includes("undefined")) throw `ATTENTION MOD DEVELOPER:
-	Please add the following to your code ${deps.map(dep => {
-		if (typeof dep.obj == "undefined") return dep.text; else return "";
-	}).join("\n")}`;
+	if (deps.map(dep => eval("typeof " + dep.obj)).includes("undefined")) throw `\nATTENTION MOD DEVELOPER:\nPlease add the following to your code:\n${deps.map(dep => {
+		if (eval("typeof " + dep.obj) == "undefined") return dep.text;
+	}).filter(d => !!d).join("\n")}`;
 	let packs = {},
 		macros = [],
 		macroChord = [],
