@@ -2,7 +2,7 @@
 // @name         BCMacro API
 // @namespace    https://bcmc.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.9.2.110
+// @version      0.10.0.112
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
@@ -55,11 +55,14 @@
 
 	let packs = {},
 		macros = [],
+		macroChord = [],
+		typing = false,
 		BCMacros = new TumbleMod({
 			id: "BCMacros",
 			abriv: "BCM",
 			packs,
 			macros,
+			macroChord,
 			createMacroPack,
 			CreateMacroPack: createMacroPack,
 			sendMessage,
@@ -478,6 +481,17 @@
 	}
 	BCMacros.createMacro = customMacros.createMacro;
 
+
+	function isChording(macros = []) {
+		if (macros.length !== macroChord.length) return false;
+		for (let i = 0; i < macros.length; i++) {
+			if (macros[i] !== macroChord[i]) return false;
+		}
+		return true;
+	}
+	BCMacros.isChording = isChording;
+
+
 	// Runs on page load
 	TumbleMod.onDocumentLoaded().then(_ => {
 		BCMacros.log("Document Loaded");
@@ -502,6 +516,7 @@
 
 		// Setup Inputs
 		document.addEventListener("keydown", function ({ code: keyCode, key: keyName }) {
+			if (typing) return;
 			if (binding) {
 				binding.bindKey(keyCode, keyName);
 				binding = undefined;
@@ -509,22 +524,40 @@
 				return;
 			}
 
-			let macro = macros.find(a => a.keyCode == keyCode);
-			if (!macro) return;
-			if (isSettingsOpen())
-				document.getElementById(`bcmSetting_${macro.id}`).firstElementChild.classList.add("bg-success", "text-white");
-			else {
-				BCMacros.log("Triggering", macro.name, "by key...");
-				macro.action();
-			}
+			let macroList = macros.filter(a => a.keyCode == keyCode);
+			macroList.forEach(macro => {
+				if (!macro) return;
+				if (isSettingsOpen())
+					document.getElementById(`bcmSetting_${macro.id}`).firstElementChild.classList.add("bg-success", "text-white");
+				else {
+					BCMacros.log("Triggering", macro.name, "by key...");
+					if (macro.action) {
+						macro.action();
+						BCMacros.macroChord = macroChord = [];
+					}
+					else if (!macroChord.includes(macro.id)) macroChord.push(macro.id);
+				}
+			});
 
 		});
 		document.addEventListener("keyup", function ({ code: keyCode, key: keyName }) {
-			let macro = macros.find(a => a.keyCode == keyCode);
-			if (!macro) return;
-			if (isSettingsOpen())
-				document.getElementById(`bcmSetting_${macro.id}`).firstElementChild.classList.remove("bg-success", "text-white");
+			if (typing) return;
+			let macroList = macros.filter(a => a.keyCode == keyCode);
+			macroList.forEach(macro => {
+				if (!macro) return;
+				if (isSettingsOpen())
+					document.getElementById(`bcmSetting_${macro.id}`).firstElementChild.classList.remove("bg-success", "text-white");
+			});
 		}, false);
+
+
+
+		document.getElementById("message").addEventListener("focusin", () => {
+			typing = true;
+		});
+		document.getElementById("message").addEventListener("focusout", () => {
+			typing = false;
+		});
 	});
 
 	exportFunction(BCMacros, unsafeWindow, {
