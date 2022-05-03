@@ -2,7 +2,7 @@
 // @name         BCMacro API
 // @namespace    https://bcmc.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.10.0.112
+// @version      0.10.1.113
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
@@ -20,7 +20,6 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
-// @updateURL    https://github.com/boxcritters/bcmacros/raw/master/bcmacro-api.user.js
 // @run-at       document-start
 // ==/UserScript==
 
@@ -51,7 +50,16 @@
  */
 (function () {
 	'use strict';
-	//window = unsafeWindow || window;
+	const uWindow = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
+
+	if (uWindow.BCMacros) return;
+	if (typeof TumbleMod == 'undefined') throw `// @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js`;
+	if (typeof Modial == 'undefined') throw `// @require      https://github.com/tumble1999/modial/raw/master/modial.js`;
+	if (typeof Critterguration == 'undefined') throw `// @require      https://github.com/tumble1999/critterguration/raw/master/critterguration.user.js`;
+	if (typeof ctrlPanel == 'undefined') throw `// @require      https://github.com/SArpnt/ctrl-panel/raw/master/script.user.js`;
+	if (typeof GM_getValue == 'undefined') throw "// @grant        GM_getValue";
+	if (typeof GM_setValue == 'undefined') throw "// @grant        GM_setValue";
+	if (typeof GM_deleteValue == 'undefined') throw "// @grant        GM_deleteValue";
 
 	let packs = {},
 		macros = [],
@@ -314,7 +322,6 @@
 		}
 
 		registerButton(button) {
-			console.log(button.onclick);
 			if (!this.button) this.button = {};
 			let pack = this.getPack(),
 				id = this.button.id;
@@ -560,7 +567,5 @@
 		});
 	});
 
-	exportFunction(BCMacros, unsafeWindow, {
-		defineAs: "BCMacros",
-	});
+	uWindow.BCMacros = BCMacros;
 })();
