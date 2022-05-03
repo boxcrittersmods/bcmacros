@@ -2,7 +2,7 @@
 // @name         BCMacro API
 // @namespace    https://bcmc.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.9.1.109
+// @version      0.9.2.110
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       TumbleGamer
 // @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
@@ -175,7 +175,7 @@
 		settingItem.id = `bcmSetting_${macro.id}`;
 		settingItem.classList.add("input-group");
 		settingItem.innerHTML = `
-		<input type="text" class="form-control" value='${macro.name}'>
+		<input type="text" class="form-control" value='${macro.name}' disabled>
 		<button class="btn ${macro.buttonEnabled() ? "btn-success" : "btn-outline-secondary"} bcm-button" type="button" >
 			Toggle Button
 		</button>
