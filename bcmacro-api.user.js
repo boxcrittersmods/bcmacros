@@ -91,8 +91,8 @@
 		macroChord = [],
 		typing = false,
 		BCMacros = new TumbleMod({
-			id: "BCMacros",
-			name: "BCMacros",
+			id: "bc-macros",
+			name: "Macros",
 			abriv: "BCM",
 			author: "Tumble",
 			packs,
