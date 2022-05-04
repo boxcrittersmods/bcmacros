@@ -4,7 +4,7 @@
 // @supportURL   http://discord.gg/D2ZpRUW
 // @version      0.11.6.116
 // @description  Adds Buttons and Keybinds to Box Critters
-// @author       TumbleGamer
+// @author       Tumble
 // @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
 // @require      https://kit.fontawesome.com/efb91a96ed.js
 // @require      https://github.com/tumble1999/mod-utils/raw/master/mod-utils.js
@@ -83,9 +83,9 @@
 			text: "// @grant        GM_deleteValue"
 		}
 	];
-	if (deps.map(dep => eval("typeof " + dep.obj)).includes("undefined")) throw `\nATTENTION MOD DEVELOPER:\nPlease add the following to your code:\n${deps.map(dep => {
+	if (deps.map(dep => eval("typeof " + dep.obj)).includes("undefined")) throw "\nATTENTION MOD DEVELOPER:\nPlease add the following to your code:\n" + deps.map(dep => {
 		if (eval("typeof " + dep.obj) == "undefined") return dep.text;
-	}).filter(d => !!d).join("\n")}`;
+	}).filter(d => !!d).join("\n");
 	let packs = {},
 		macros = [],
 		macroChord = [],
@@ -94,6 +94,7 @@
 			id: "BCMacros",
 			name: "BCMacros",
 			abriv: "BCM",
+			author: "Tumble",
 			packs,
 			macros,
 			macroChord,
