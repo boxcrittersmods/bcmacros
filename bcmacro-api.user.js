@@ -2,7 +2,7 @@
 // @name         BCMacro API
 // @namespace    https://bcmc.ga/authors/tumblegamer/
 // @supportURL   http://discord.gg/D2ZpRUW
-// @version      0.11.7.118
+// @version      0.11.8.119
 // @description  Adds Buttons and Keybinds to Box Critters
 // @author       Tumble
 // @icon         https://github.com/boxcrittersmods/bcmacros/raw/master/icon.png
@@ -91,7 +91,7 @@
 		macroChord = [],
 		typing = false,
 		BCMacros = new TumbleMod({
-			id: "bc-macros",
+			id: "bcMacros",
 			name: "Macros",
 			abriv: "BCM",
 			author: "Tumble",
